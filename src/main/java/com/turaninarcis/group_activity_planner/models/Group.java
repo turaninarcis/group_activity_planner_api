@@ -27,8 +27,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
-@Builder
 @Table(name = "groups")
 public class Group {
 
@@ -41,7 +39,6 @@ public class Group {
     @ManyToOne
     @JoinColumn(name = "group_created_by", nullable = false, updatable = false)
     private User creator;
-
     @ManyToOne
     @JoinColumn(name = "group_admin_id", nullable = false)
     private User administrator;
