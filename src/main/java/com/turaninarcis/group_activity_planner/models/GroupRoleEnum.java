@@ -1,5 +1,5 @@
 package com.turaninarcis.group_activity_planner.models;
 
-public enum GroupRole {
+public enum GroupRoleEnum {
     MEMBER,ADMIN,CREATOR
 }
