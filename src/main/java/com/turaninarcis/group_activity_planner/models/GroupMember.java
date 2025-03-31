@@ -3,6 +3,8 @@ package com.turaninarcis.group_activity_planner.models;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -10,33 +12,31 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "task_assignments")
-public class TaskAssignment {
-    
+@Table(name="group_members")
+public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name="user_id", nullable = false)
     private User user;
 
-
     @ManyToOne
-    @JoinColumn(name = "task_id", nullable = false)
-    private Task task;
+    @JoinColumn(name="group_id", nullable = false)
+    private Group group;
 
-    private boolean completed = false;
+    @Enumerated(EnumType.STRING)
+    private GroupRole role;
 
-    public TaskAssignment(User user, Task task){
-        this.user = user;
-        this.task = task;
+    public GroupMember(User user, Group group, GroupRole role){
+        this.user=user;
+        this.group=group;
+        this.role=role;
     }
 }
