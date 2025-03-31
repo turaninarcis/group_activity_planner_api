@@ -1,7 +1,9 @@
 package com.turaninarcis.group_activity_planner.models;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,9 +17,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,23 +35,17 @@ public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     private String name;
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "group_created_by", nullable = false, updatable = false)
-    private User creator;
-    @ManyToOne
-    @JoinColumn(name = "group_admin_id", nullable = false)
-    private User administrator;
+    @OneToMany(mappedBy = "group")
+    private Set<GroupMember> groupMembers = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-        name = "group_members",
-        joinColumns = @JoinColumn(name = "group_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> members;
+    public Group(String name, String description, User user){
+        this.name = name;
+        this.description = description;
+    }
 
     @CreationTimestamp
     private LocalDateTime created;

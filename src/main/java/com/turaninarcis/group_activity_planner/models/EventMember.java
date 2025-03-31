@@ -1,10 +1,6 @@
 package com.turaninarcis.group_activity_planner.models;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
-
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,8 +17,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "user_events")
-public class UserEvent {
+@Table(name = "event_member")
+public class EventMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,6 +31,8 @@ public class UserEvent {
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
+    
+    
 
     private boolean confirmed;
 }

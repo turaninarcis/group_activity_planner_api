@@ -1,7 +1,6 @@
 package com.turaninarcis.group_activity_planner.models;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;

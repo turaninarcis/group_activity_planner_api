@@ -23,8 +23,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "taskEvent")
-public class EventTask {
+@Table(name = "task")
+public class Task {
     
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,7 +39,7 @@ public class EventTask {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
-    public EventTask(String name, String description, Event event){
+    public Task(String name, String description, Event event){
         this.description = description;
         this.name = name;
         this.event = event;
