@@ -32,9 +32,9 @@ public class GroupMember {
     private Group group;
 
     @Enumerated(EnumType.STRING)
-    private GroupRole role;
+    private GroupRoleEnum role;
 
-    public GroupMember(User user, Group group, GroupRole role){
+    public GroupMember(User user, Group group, GroupRoleEnum role){
         this.user=user;
         this.group=group;
         this.role=role;
