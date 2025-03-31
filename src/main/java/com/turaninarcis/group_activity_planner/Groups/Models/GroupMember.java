@@ -1,6 +1,8 @@
-package com.turaninarcis.group_activity_planner.models;
+package com.turaninarcis.group_activity_planner.Groups.Models;
 
 import java.util.UUID;
+
+import com.turaninarcis.group_activity_planner.Users.Models.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

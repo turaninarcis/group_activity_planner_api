@@ -1,4 +1,4 @@
-package com.turaninarcis.group_activity_planner.models;
+package com.turaninarcis.group_activity_planner.Users.Models;
 
 import java.time.LocalDateTime;
 import java.util.Collection;

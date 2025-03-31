@@ -1,10 +1,13 @@
-package com.turaninarcis.group_activity_planner.models;
+package com.turaninarcis.group_activity_planner.Events.Models;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.turaninarcis.group_activity_planner.Groups.Models.Group;
+import com.turaninarcis.group_activity_planner.Users.Models.User;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

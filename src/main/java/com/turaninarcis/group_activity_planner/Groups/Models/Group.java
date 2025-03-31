@@ -1,4 +1,4 @@
-package com.turaninarcis.group_activity_planner.models;
+package com.turaninarcis.group_activity_planner.Groups.Models;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;

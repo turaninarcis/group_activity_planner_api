@@ -1,6 +1,8 @@
-package com.turaninarcis.group_activity_planner.models;
+package com.turaninarcis.group_activity_planner.Tasks.Models;
 
 import java.util.UUID;
+
+import com.turaninarcis.group_activity_planner.Events.Models.Event;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

@@ -1,10 +1,7 @@
-package com.turaninarcis.group_activity_planner.services;
+package com.turaninarcis.group_activity_planner.Tasks;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.turaninarcis.group_activity_planner.repositories.TaskAssignmentRepository;
-import com.turaninarcis.group_activity_planner.repositories.TaskRepository;
 
 @Service
 public class TaskService {
