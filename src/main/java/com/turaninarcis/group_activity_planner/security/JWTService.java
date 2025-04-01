@@ -51,6 +51,18 @@ public class JWTService {
         }
 
 
+        public String getUsernameFromAuthHeader(String authHeader){
+            String token = getToken(authHeader);
+            return getUserNameFromToken(token);
+        }
+
+        public String getToken(String authHeader){
+            if(authHeader != null && authHeader.startsWith("Bearer ")){
+                return authHeader.substring(7);
+            }
+            else return null;
+        }
+
         /**This method returns either the username from a token or null in case of error
          * @return username
          * **/

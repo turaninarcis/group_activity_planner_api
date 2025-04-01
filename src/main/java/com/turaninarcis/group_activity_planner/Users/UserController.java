@@ -5,21 +5,25 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
+import com.turaninarcis.group_activity_planner.Exceptions.UserNotFoundException;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
+import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserLoginDTO;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RequestMapping("/users")
-@Controller
+@RestController
 public class UserController {
     @Autowired
     UserService userService;
@@ -48,6 +52,20 @@ public class UserController {
             return ResponseEntity.badRequest().body("User credentials are not correct");
         return ResponseEntity.ok(jwtToken);
     }
+
+    @GetMapping("/info")
+    public ResponseEntity<?> getUserInfo(@RequestHeader (name="Authorization") String authHeader) {
+        try{
+            System.console().printf(authHeader);
+            UserDetailsDTO userDetailsDTO = userService.getUserDetailsDTO(authHeader);
+            return ResponseEntity.ok(userDetailsDTO);
+
+        }catch(UserNotFoundException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+
+        }
+    }
+    
 
     public String getErrors(BindingResult result){
         List<String> errorList = result.getAllErrors()

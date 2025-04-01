@@ -11,8 +11,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
+import com.turaninarcis.group_activity_planner.Exceptions.UserNotFoundException;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
+import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserLoginDTO;
 import com.turaninarcis.group_activity_planner.security.JWTService;
 
@@ -46,6 +48,18 @@ public class UserService implements UserDetailsService {
         String password = encoder.encode(userCreateDTO.password());
         User user = new User(userCreateDTO.username(), password, userCreateDTO.email());
         userRepository.save(user);
+    }
+
+
+    public UserDetailsDTO getUserDetailsDTO(String authHeader){
+        String username = jwtService.getUsernameFromAuthHeader(authHeader);
+
+        User user = userRepository.findByUsername(username);
+        if(user==null)
+            throw new UserNotFoundException(username);
+            
+        return new UserDetailsDTO(user.getUsername(), user.getEmail(), user.isEmailVerified(),
+        user.isDeletedAccount(), user.getCreated(),user.getLastTimeUpdated());
     }
 
     /**Returns jwt token if login credentials are correct or null if they are not
