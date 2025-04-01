@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,6 +37,16 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsername(username);
     }
 
+    public String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        } else {
+            return principal.toString();
+        }
+    }
+
     public void register(UserCreateDTO userCreateDTO) {
 
         if(userRepository.findByEmail(userCreateDTO.email()) != null)
@@ -49,15 +60,18 @@ public class UserService implements UserDetailsService {
         User user = new User(userCreateDTO.username(), password, userCreateDTO.email());
         userRepository.save(user);
     }
-
-
-    public UserDetailsDTO getUserDetailsDTO(String authHeader){
-        String username = jwtService.getUsernameFromAuthHeader(authHeader);
-
+  
+    public User getUser(){
+        String username = getCurrentUsername();
         User user = userRepository.findByUsername(username);
-        if(user==null)
+        if(user == null)
             throw new UserNotFoundException(username);
-            
+        return user;
+    }
+
+    public UserDetailsDTO getUserDetailsDTO(){
+        User user = getUser();
+
         return new UserDetailsDTO(user.getUsername(), user.getEmail(), user.isEmailVerified(),
         user.isDeletedAccount(), user.getCreated(),user.getLastTimeUpdated());
     }

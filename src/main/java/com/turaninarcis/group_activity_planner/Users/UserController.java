@@ -14,6 +14,7 @@ import com.turaninarcis.group_activity_planner.Exceptions.UserNotFoundException;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserLoginDTO;
+import com.turaninarcis.group_activity_planner.utility.UtilityControllers;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class UserController {
     public ResponseEntity<String> register(@Valid @RequestBody UserCreateDTO createDTO, BindingResult result) {
         if(result.hasErrors())
         {
-            return ResponseEntity.badRequest().body(getErrors(result));
+            return ResponseEntity.badRequest().body(UtilityControllers.getErrors(result));
         }
         try{
             userService.register(createDTO);
@@ -54,10 +55,9 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> getUserInfo(@RequestHeader (name="Authorization") String authHeader) {
+    public ResponseEntity<?> getUserInfo() {
         try{
-            System.console().printf(authHeader);
-            UserDetailsDTO userDetailsDTO = userService.getUserDetailsDTO(authHeader);
+            UserDetailsDTO userDetailsDTO = userService.getUserDetailsDTO();
             return ResponseEntity.ok(userDetailsDTO);
 
         }catch(UserNotFoundException e){
@@ -67,11 +67,4 @@ public class UserController {
     }
     
 
-    public String getErrors(BindingResult result){
-        List<String> errorList = result.getAllErrors()
-                                    .stream()
-                                    .map(error -> error.getDefaultMessage()) // Get the default validation message
-                                    .collect(Collectors.toList());
-        return String.join("\n", errorList);
-    }
 }
