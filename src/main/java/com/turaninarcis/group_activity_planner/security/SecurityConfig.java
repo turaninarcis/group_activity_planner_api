@@ -26,7 +26,7 @@ public class SecurityConfig {
     private JWTFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(customizer->customizer.disable())
             .authorizeHttpRequests(request->request.requestMatchers("/users/register","/users/login").permitAll().anyRequest().authenticated())
             .httpBasic(Customizer.withDefaults())

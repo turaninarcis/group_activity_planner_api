@@ -11,5 +11,5 @@ import com.turaninarcis.group_activity_planner.Users.Models.User;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     User findByUsername(String username);
-
+    User findByEmail(String email);
 }
