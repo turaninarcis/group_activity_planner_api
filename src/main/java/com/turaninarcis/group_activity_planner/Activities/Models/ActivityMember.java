@@ -4,7 +4,10 @@ import java.util.UUID;
 
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,11 +33,13 @@ public class ActivityMember {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
     
-    
+    @Enumerated(EnumType.STRING)
+    private ActivityMemberRoleEnum role;
 
-    private boolean confirmed;
+
+    private boolean confirmed = false;
 }

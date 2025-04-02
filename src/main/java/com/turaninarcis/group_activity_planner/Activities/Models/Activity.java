@@ -6,15 +6,11 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.turaninarcis.group_activity_planner.Groups.Models.Group;
-import com.turaninarcis.group_activity_planner.Users.Models.User;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +39,10 @@ public class Activity {
 
     private String description;
 
+    @NotBlank
+    @NotNull
+    private String inviteToken;
+
     @CreationTimestamp
     private LocalDateTime created;
 
@@ -53,22 +53,11 @@ public class Activity {
     private LocalDateTime endDate;
 
 
-    @ManyToOne
-    @JoinColumn(name= "activity_admin_id", nullable = false)
-    private User administrator;
-
-    @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
-    private Group group;
-
-    public Activity(String name, String description, User administrator, Group group, LocalDateTime startDate, LocalDateTime endDate){
+    public Activity(String name, String description, String inviteToken, LocalDateTime startDate, LocalDateTime endDate){
         this.name = name;
         this.description = description;
+        this.inviteToken = inviteToken;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.group = group;
-        this. administrator = administrator;
     }
-
-
 }
