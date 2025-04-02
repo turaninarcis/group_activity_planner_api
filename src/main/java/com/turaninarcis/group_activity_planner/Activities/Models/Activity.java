@@ -1,4 +1,4 @@
-package com.turaninarcis.group_activity_planner.Events.Models;
+package com.turaninarcis.group_activity_planner.Activities.Models;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -30,8 +30,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "events")
-public class Event {
+@Table(name = "activities")
+public class Activity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -54,14 +54,14 @@ public class Event {
 
 
     @ManyToOne
-    @JoinColumn(name= "event_admin_id", nullable = false)
+    @JoinColumn(name= "activity_admin_id", nullable = false)
     private User administrator;
 
     @ManyToOne
     @JoinColumn(name = "group_id", nullable = false)
     private Group group;
 
-    public Event(String name, String description, User administrator, Group group, LocalDateTime startDate, LocalDateTime endDate){
+    public Activity(String name, String description, User administrator, Group group, LocalDateTime startDate, LocalDateTime endDate){
         this.name = name;
         this.description = description;
         this.startDate = startDate;

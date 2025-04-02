@@ -1,4 +1,4 @@
-package com.turaninarcis.group_activity_planner.Events.Models;
+package com.turaninarcis.group_activity_planner.Activities.Models;
 
 import java.util.UUID;
 
@@ -19,8 +19,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "event_member")
-public class EventMember {
+@Table(name = "activity_member")
+public class ActivityMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,8 +31,8 @@ public class EventMember {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @JoinColumn(name = "activity_id", nullable = false)
+    private Activity activity;
     
     
 

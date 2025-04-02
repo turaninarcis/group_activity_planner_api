@@ -2,7 +2,7 @@ package com.turaninarcis.group_activity_planner.Tasks.Models;
 
 import java.util.UUID;
 
-import com.turaninarcis.group_activity_planner.Events.Models.Event;
+import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,12 +38,12 @@ public class Task {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
-    private Event event;
+    @JoinColumn(name = "activity_id", nullable = false)
+    private Activity activity;
 
-    public Task(String name, String description, Event event){
+    public Task(String name, String description, Activity activity){
         this.description = description;
         this.name = name;
-        this.event = event;
+        this.activity = activity;
     }
 }
