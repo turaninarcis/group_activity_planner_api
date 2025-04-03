@@ -6,8 +6,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
-import com.turaninarcis.group_activity_planner.utility.UtilityControllers;
 
 import jakarta.validation.Valid;
 
@@ -25,15 +25,11 @@ public class GroupController {
     @PostMapping("/create")
     public ResponseEntity<String> createGroup(@Valid @RequestBody GroupCreateDTO groupCreateDTO, BindingResult result) {
         if(result.hasErrors())
-        {
-            return ResponseEntity.badRequest().body(UtilityControllers.getErrors(result));
-        }
-        try{
-            groupService.createGroup(groupCreateDTO);
-            return ResponseEntity.ok("Group created successfully");
-        }catch(Exception e){
-            return ResponseEntity.badRequest().body("Something went wrong");
-        }
+            throw new ValidationException(result);
+            
+        groupService.createGroup(groupCreateDTO);
+        return ResponseEntity.ok("Group created successfully");
+
         
     }
     

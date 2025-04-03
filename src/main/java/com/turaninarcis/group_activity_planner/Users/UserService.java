@@ -11,8 +11,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.turaninarcis.group_activity_planner.Exceptions.AuthentificationFailedException;
+import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
-import com.turaninarcis.group_activity_planner.Exceptions.UserNotFoundException;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
@@ -21,10 +22,10 @@ import com.turaninarcis.group_activity_planner.security.JWTService;
 
 @Service
 public class UserService implements UserDetailsService {
-    UserRepository userRepository;
-    AuthenticationManager authManager;
-    JWTService jwtService;
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    private UserRepository userRepository;
+    private AuthenticationManager authManager;
+    private JWTService jwtService;
+    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public UserService(UserRepository repo, @Lazy AuthenticationManager authManager, JWTService jwtService){
         this.userRepository = repo;
@@ -36,8 +37,25 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
     }
+    
 
-    public String getCurrentUsername() {
+    /**
+     * Returns the current user from the SecurityContextHolder and returns it
+     * @return current logged in user
+     */
+    public User getLoggedUser(){
+        String username = getLoggedUsername();
+        User user = userRepository.findByUsername(username);
+        if(user == null)
+            throw new ResourceNotFoundException(User.class.getSimpleName());
+        return user;
+    }
+
+    /**
+     * Gets the current users username from the SecurityContextHolder and returns it
+     * @return current logged in username
+     */
+    public String getLoggedUsername() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         if (principal instanceof UserDetails) {
@@ -47,8 +65,9 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void register(UserCreateDTO userCreateDTO) {
 
+
+    public void register(UserCreateDTO userCreateDTO) {
         if(userRepository.findByEmail(userCreateDTO.email()) != null)
             throw new UserAlreadyExistsException("Email is already in use");
 
@@ -61,22 +80,16 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
   
-    public User getUser(){
-        String username = getCurrentUsername();
-        User user = userRepository.findByUsername(username);
-        if(user == null)
-            throw new UserNotFoundException(username);
-        return user;
-    }
+
 
     public UserDetailsDTO getUserDetailsDTO(){
-        User user = getUser();
+        User user = getLoggedUser();
 
         return new UserDetailsDTO(user.getUsername(), user.getEmail(), user.isEmailVerified(),
         user.isDeletedAccount(), user.getCreated(),user.getLastTimeUpdated());
     }
 
-    /**Returns jwt token if login credentials are correct or null if they are not
+    /**Returns jwt token if login credentials are correct or throws exception if not
      * 
      * @param userLoginDTO
      * @return JWT Token/null
@@ -86,11 +99,12 @@ public class UserService implements UserDetailsService {
         if(user == null)
             user = userRepository.findByEmail(userLoginDTO.username());
         if(user == null)
-            return null;
-        Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
-        if(authentication.isAuthenticated())
-            return jwtService.generateToken(user.getUsername());
-        else return null;
+            throw new AuthentificationFailedException();
+
+
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
+        return jwtService.generateToken(user.getUsername());
+
     }
 
 }

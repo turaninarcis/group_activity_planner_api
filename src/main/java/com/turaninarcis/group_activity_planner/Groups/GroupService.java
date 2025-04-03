@@ -14,20 +14,20 @@ import com.turaninarcis.group_activity_planner.Users.Models.User;
 @Service
 public class GroupService {
     @Autowired
-    GroupRepository groupRepository;
+    private GroupRepository groupRepository;
 
     @Autowired
-    GroupMembersRepository groupMembersRepository;
+    private GroupMembersRepository groupMembersRepository;
 
     @Autowired 
-    UserService userService;
+    private UserService userService;
 
     public void createGroup(GroupCreateDTO groupCreateDTO) {
         
         Group group = new Group(groupCreateDTO.name(), groupCreateDTO.description());
         Group savedGroup = groupRepository.save(group);
 
-        User user = userService.getUser();
+        User user = userService.getLoggedUser();
         GroupMember creator = new GroupMember(user, savedGroup, GroupRoleEnum.CREATOR);
 
         groupMembersRepository.save(creator);

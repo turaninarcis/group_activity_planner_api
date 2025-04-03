@@ -40,6 +40,16 @@ public class ActivityMember {
     @Enumerated(EnumType.STRING)
     private ActivityMemberRoleEnum role;
 
-
     private boolean confirmed = false;
+
+    public ActivityMember(User user, Activity activity, ActivityMemberRoleEnum role){
+        this.user = user;
+        this.activity = activity;
+        this.role=role;
+    }
+    public static ActivityMember MakeCreator(User user, Activity activity){
+        ActivityMember creator = new ActivityMember(user, activity, ActivityMemberRoleEnum.CREATOR);
+        creator.setConfirmed(true);
+        return creator;
+    }
 }
