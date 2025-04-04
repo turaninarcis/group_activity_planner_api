@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.turaninarcis.group_activity_planner.Exceptions.AuthentificationFailedException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
+import com.turaninarcis.group_activity_planner.Users.Models.RoleEnum;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
@@ -25,6 +26,7 @@ public class UserService implements UserDetailsService {
     private UserRepository userRepository;
     private AuthenticationManager authManager;
     private JWTService jwtService;
+    private Authentication authentication;
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public UserService(UserRepository repo, @Lazy AuthenticationManager authManager, JWTService jwtService){
@@ -56,7 +58,7 @@ public class UserService implements UserDetailsService {
      * @return current logged in username
      */
     public String getLoggedUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Object principal = authentication.getPrincipal();
         
         if (principal instanceof UserDetails) {
             return ((UserDetails) principal).getUsername();
@@ -64,7 +66,13 @@ public class UserService implements UserDetailsService {
             return principal.toString();
         }
     }
-
+    public Boolean isUserAdmin(){
+        return authentication.getAuthorities().contains(RoleEnum.ROLE_ADMIN);
+    }
+    public Boolean isAuthenticated(){
+        return authentication.isAuthenticated();
+    }
+    
 
 
     public void register(UserCreateDTO userCreateDTO) {
@@ -102,7 +110,8 @@ public class UserService implements UserDetailsService {
             throw new AuthentificationFailedException();
 
 
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
+        authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtService.generateToken(user.getUsername());
 
     }

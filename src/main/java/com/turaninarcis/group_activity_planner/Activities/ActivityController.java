@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
-import com.turaninarcis.group_activity_planner.utility.UtilityControllers;
 
 import jakarta.validation.Valid;
 

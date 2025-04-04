@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
+import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
-import com.turaninarcis.group_activity_planner.utility.UtilityControllers;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +19,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/tasks")
 @RestController
 public class TaskController {
+
     @Autowired
     private TaskService taskService;
+
+
 
     @PostMapping("")  
     public ResponseEntity<String> createTask(@Valid @RequestBody TaskCreateDTO taskCreateDTO, BindingResult result){
@@ -29,6 +32,13 @@ public class TaskController {
 
         taskService.createTask(taskCreateDTO);
         return ResponseEntity.ok().body("Task created successfully");
+    }
+    @PostMapping("/assignment")
+    public ResponseEntity<String> createTaskAssignment(@Valid @RequestBody TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, BindingResult result){
+        if(result.hasErrors())
+            throw new ValidationException(result);
+        taskService.createTaskAssignment(taskAssigmnentCreateDTO);
+        return ResponseEntity.ok().body("Task assignment created successfully");
     }
 }
 
