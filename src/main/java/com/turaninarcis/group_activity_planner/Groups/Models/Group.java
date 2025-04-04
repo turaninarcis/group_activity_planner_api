@@ -34,13 +34,14 @@ public class Group {
 
     private String name;
     private String description;
-
+    private String inviteToken;
     @OneToMany(mappedBy = "group")
     private Set<GroupMember> groupMembers = new HashSet<>();
 
-    public Group(String name, String description){
+    public Group(String name, String description, String inviteToken){
         this.name = name;
         this.description = description;
+        this.inviteToken = inviteToken;
     }
 
     @CreationTimestamp

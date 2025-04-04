@@ -33,12 +33,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleGenericException(RuntimeException exception) {
-        return createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, exception);
+        return createResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, new RuntimeException("Something went wrong"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, String>> handleAuthentificationFailedException(RuntimeException exception) {
-        
+
         return createResponseEntity(HttpStatus.BAD_REQUEST, new AuthentificationFailedException());
     }
 

@@ -1,6 +1,9 @@
 package com.turaninarcis.group_activity_planner.Groups.Models;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 
@@ -34,11 +37,14 @@ public class GroupMember {
     private Group group;
 
     @Enumerated(EnumType.STRING)
-    private GroupRoleEnum role;
+    private GroupRoleEnum role = GroupRoleEnum.MEMBER;
 
-    public GroupMember(User user, Group group, GroupRoleEnum role){
+    @CreationTimestamp
+    private LocalDateTime joinDate;
+
+
+    public GroupMember(User user, Group group){
         this.user=user;
         this.group=group;
-        this.role=role;
     }
 }
