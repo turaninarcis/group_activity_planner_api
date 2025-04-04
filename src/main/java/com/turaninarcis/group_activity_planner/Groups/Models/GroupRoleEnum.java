@@ -1,5 +1,9 @@
 package com.turaninarcis.group_activity_planner.Groups.Models;
 
 public enum GroupRoleEnum {
-    MEMBER,ADMIN,CREATOR
+    MEMBER,ADMINISTRATOR,CREATOR;
+
+    public boolean isAdmin(){
+        return this == ADMINISTRATOR || this == CREATOR;
+    }
 }

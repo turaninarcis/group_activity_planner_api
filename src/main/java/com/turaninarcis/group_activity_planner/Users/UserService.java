@@ -26,7 +26,6 @@ public class UserService implements UserDetailsService {
     private UserRepository userRepository;
     private AuthenticationManager authManager;
     private JWTService jwtService;
-    private Authentication authentication;
     private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     public UserService(UserRepository repo, @Lazy AuthenticationManager authManager, JWTService jwtService){
@@ -58,7 +57,7 @@ public class UserService implements UserDetailsService {
      * @return current logged in username
      */
     public String getLoggedUsername() {
-        Object principal = authentication.getPrincipal();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         if (principal instanceof UserDetails) {
             return ((UserDetails) principal).getUsername();
@@ -67,10 +66,10 @@ public class UserService implements UserDetailsService {
         }
     }
     public Boolean isUserAdmin(){
-        return authentication.getAuthorities().contains(RoleEnum.ROLE_ADMIN);
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(RoleEnum.ROLE_ADMIN);
     }
     public Boolean isAuthenticated(){
-        return authentication.isAuthenticated();
+        return SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
     }
     
 
@@ -110,8 +109,7 @@ public class UserService implements UserDetailsService {
             throw new AuthentificationFailedException();
 
 
-        authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
         return jwtService.generateToken(user.getUsername());
 
     }

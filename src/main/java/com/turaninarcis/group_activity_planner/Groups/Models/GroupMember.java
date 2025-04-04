@@ -17,12 +17,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Getter
 @Setter
 @Table(name="group_members")
+@NoArgsConstructor
 public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

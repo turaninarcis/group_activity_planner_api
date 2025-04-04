@@ -38,5 +38,10 @@ public class GroupController {
         return ResponseEntity.ok().body("User joined group successfully");
     }
     
+    @PostMapping("/new-invite-token/{groupId}")
+    public ResponseEntity<String> generateNewInviteToken(@PathVariable String groupId) {
+        groupService.generateNewInviteToken(groupId);
+        return ResponseEntity.ok().body("Token generated successfully");
+    }
     
 }
