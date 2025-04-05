@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 
@@ -45,7 +44,7 @@ public class GroupController {
         return ResponseEntity.ok("Group created successfully");
     }
     @PostMapping("/invite/{inviteToken}")
-    public ResponseEntity<String> postMethodName(@PathVariable String inviteToken) {
+    public ResponseEntity<String> joinGroup(@PathVariable String inviteToken) {
         groupService.createGroupMember(inviteToken);
         return ResponseEntity.ok().body("User joined group successfully");
     }
@@ -63,6 +62,17 @@ public class GroupController {
 
         groupService.updateGroupMember(groupUpdateDTO, groupId);
         return ResponseEntity.ok().body("Group member role updated successfully");
+    }  
+
+    @DeleteMapping("/{groupId}/members/leave")
+    public ResponseEntity<String> leaveGroup(@PathVariable String groupId){
+        groupService.leaveGroup(groupId);
+        return ResponseEntity.ok().body("Leaved the group successfully");
+    }  
+    @DeleteMapping("/{groupId}/members/{username}/kick")
+    public ResponseEntity<String> kickMember(@PathVariable String groupId, @PathVariable String username){
+        groupService.kickMember(groupId, username);
+        return ResponseEntity.ok().body("User kicked from the group successfully");
     }  
     @DeleteMapping("/{groupId}")
     public ResponseEntity<String> deleteGroup(@PathVariable String groupId){

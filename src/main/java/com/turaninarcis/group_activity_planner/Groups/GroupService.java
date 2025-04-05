@@ -87,15 +87,30 @@ public class GroupService {
     private GroupMember getGroupMember(User user, Group group){
         GroupMember member = groupMembersRepository.findByUserAndGroup(user, group);
         if(member == null)
-            throw new PermissionException("You are not a member of the group!");
+            throw new PermissionException("The user is not part of the group!");
         return member;
+    }
+
+    public void leaveGroup(String groupId){
+        Group group = getGroup(groupId);
+        GroupMember member = isLoggedUserGroupMember(group);
+        groupMembersRepository.delete(member);
+    }
+    public void kickMember(String groupId, String username){
+        Group group = getGroup(groupId);
+        User user = userService.findUserByUsername(username);
+        GroupMember groupMember = getGroupMember(user, group);
+        if(groupMember == null) throw new ResourceNotFoundException("Group member");
+        isLoggedUserGroupAdmin(group);
+
+        groupMembersRepository.delete(groupMember);
     }
 
     public GroupDetailsDTO getGroupDetails(String groupId){
         Group group = getGroup(groupId);
 
         isLoggedUserGroupMember(group);
-        
+
         Set<GroupMemberDetailsDTO> groupMembersDetails = groupMembersRepository.findGroupMembersDetails(group.getId());
         GroupDetailsDTO detailsDTO = new GroupDetailsDTO(group.getName(),group.getDescription(), group.getCreated(), group.getLastUpdate(), groupMembersDetails);
         return detailsDTO;
