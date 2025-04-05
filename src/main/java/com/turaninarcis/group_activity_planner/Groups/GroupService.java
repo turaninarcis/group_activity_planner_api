@@ -2,6 +2,7 @@ package com.turaninarcis.group_activity_planner.Groups;
 
 import java.util.UUID;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,9 @@ import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundExcept
 import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMember;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupRoleEnum;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
 import com.turaninarcis.group_activity_planner.Users.UserService;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 
@@ -47,22 +50,51 @@ public class GroupService {
         groupMembersRepository.save(groupMember);
     }
 
-    public void generateNewInviteToken(String groupId){
+    public void updateGroup(GroupUpdateDTO groupUpdateDTO, String groupId){
         UUID id = UUID.fromString(groupId);
-        Group group = groupRepository.findById(id).orElse(null);
+        Group group=groupRepository.findById(id).orElse(null);
+        isLoggedUserGroupAdmin(group);
 
+        if(groupUpdateDTO.description() != null) group.setDescription(groupUpdateDTO.description());
+        if(groupUpdateDTO.name() != null) group.setName(groupUpdateDTO.name());
+        if(groupUpdateDTO.newToken() == true) group.setInviteToken(UUID.randomUUID().toString());
+
+        groupRepository.save(group);
+    }
+    public void updateGroupMember(GroupMemberUpdateDTO groupMemberUpdateDTO, String groupId){
+        if(groupMemberUpdateDTO.role() == GroupRoleEnum.CREATOR) throw new PermissionException("You can't assign a new creator!");
+        Group group = getGroup(groupId);
+
+        isLoggedUserGroupAdmin(group);
+
+        User user = userService.findUserByUsername(groupMemberUpdateDTO.username());
+
+        GroupMember member = getGroupMember(user, group);
+
+        member.setRole(groupMemberUpdateDTO.role());
+
+        groupMembersRepository.save(member);
+    }
+    private Group getGroup(String groupId){
+        UUID id = UUID.fromString(groupId);
+        Group group=groupRepository.findById(id).orElse(null);
         if(group == null) throw new ResourceNotFoundException(Group.class.getSimpleName());
+        return group;
+    }
+    private GroupMember getGroupMember(User user, Group group){
+        GroupMember member = groupMembersRepository.findByUserAndGroup(user, group);
+        if(member == null)
+            throw new ResourceNotFoundException("Group member");
+        return member;
+    }
 
+    private GroupMember isLoggedUserGroupAdmin(Group group){
         User user = userService.getLoggedUser();
-
-         GroupMember member = groupMembersRepository.findByUserAndGroup(user,group);
-        if(member == null) 
-            throw new ResourceNotFoundException(GroupMember.class.getSimpleName());
+        GroupMember member = getGroupMember(user, group);
 
         if(!member.getRole().isAdmin())
             throw new PermissionException();
         
-        group.setInviteToken(UUID.randomUUID().toString());
-        groupRepository.save(group);
+        return member;
     }
 }

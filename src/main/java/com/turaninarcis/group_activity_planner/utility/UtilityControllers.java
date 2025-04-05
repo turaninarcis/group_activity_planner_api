@@ -12,6 +12,6 @@ public class UtilityControllers {
                                     .stream()
                                     .map(error -> error.getDefaultMessage()) // Get the default validation message
                                     .collect(Collectors.toList());
-        return String.join("\n", errorList);
+        return String.join(", ", errorList);
     }
 }

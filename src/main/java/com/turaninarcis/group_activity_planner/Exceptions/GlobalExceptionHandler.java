@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -52,7 +53,14 @@ public class GlobalExceptionHandler {
 
         return createResponseEntity(HttpStatus.UNAUTHORIZED, exception);
     }
-
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<Map<String,String>> handleIncorrectPasswordException(IncorrectPasswordException exception){
+        return createResponseEntity(HttpStatus.UNAUTHORIZED, exception);
+    }
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String,String>> handleMissingBody(HttpMessageNotReadableException exception){
+        return createResponseEntity(HttpStatus.BAD_REQUEST, new RuntimeException("Request body is missing or malformed"));
+    }
     private ResponseEntity<Map<String,String>> createResponseEntity(HttpStatus status, RuntimeException e){
         Map<String,String> error = new HashMap<>();
         error.put("error", e.getMessage());

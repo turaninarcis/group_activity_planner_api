@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,11 +40,19 @@ public class GroupController {
         groupService.createGroupMember(inviteToken);
         return ResponseEntity.ok().body("User joined group successfully");
     }
-    
-    @PostMapping("/new-invite-token/{groupId}")
-    public ResponseEntity<String> generateNewInviteToken(@PathVariable String groupId) {
-        groupService.generateNewInviteToken(groupId);
-        return ResponseEntity.ok().body("Token generated successfully");
-    }
-    
+    @PatchMapping("/{groupId}")
+    public ResponseEntity<String> updateGroup(@PathVariable String groupId, @Valid @RequestBody GroupUpdateDTO groupUpdateDTO, BindingResult result){
+        if(result.hasErrors())
+            throw new ValidationException(result);
+        groupService.updateGroup(groupUpdateDTO, groupId);
+        return ResponseEntity.ok().body("Group updated successfully");
+    }  
+    @PatchMapping("/{groupId}/members")
+    public ResponseEntity<String> updateGroupMember(@PathVariable String groupId, @Valid @RequestBody GroupMemberUpdateDTO groupUpdateDTO, BindingResult result){
+        if(result.hasErrors())
+            throw new ValidationException(result);
+
+        groupService.updateGroupMember(groupUpdateDTO, groupId);
+        return ResponseEntity.ok().body("Group member role updated successfully");
+    }  
 }

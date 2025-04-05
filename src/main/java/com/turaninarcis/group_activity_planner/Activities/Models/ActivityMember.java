@@ -34,6 +34,7 @@ public class ActivityMember {
     private User user;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
+    
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
     

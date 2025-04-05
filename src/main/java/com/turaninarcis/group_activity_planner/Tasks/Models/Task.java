@@ -1,15 +1,18 @@
 package com.turaninarcis.group_activity_planner.Tasks.Models;
 
+import java.util.Set;
 import java.util.UUID;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,6 +43,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
+    
+    @OneToMany(mappedBy = "task", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<TaskAssignment> assignments;
 
     public Task(String name, String description, Activity activity){
         this.description = description;

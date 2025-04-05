@@ -3,7 +3,6 @@ package com.turaninarcis.group_activity_planner.Users;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Exceptions.AuthentificationFailedException;
+import com.turaninarcis.group_activity_planner.Exceptions.IncorrectPasswordException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
 import com.turaninarcis.group_activity_planner.Users.Models.RoleEnum;
@@ -19,6 +19,7 @@ import com.turaninarcis.group_activity_planner.Users.Models.User;
 import com.turaninarcis.group_activity_planner.Users.Models.UserCreateDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserLoginDTO;
+import com.turaninarcis.group_activity_planner.Users.Models.UserUpdateDTO;
 import com.turaninarcis.group_activity_planner.security.JWTService;
 
 @Service
@@ -38,7 +39,9 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
     }
-    
+    public User findUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username);
+    }
 
     /**
      * Returns the current user from the SecurityContextHolder and returns it
@@ -88,12 +91,33 @@ public class UserService implements UserDetailsService {
     }
   
 
+    public void updateUser(UserUpdateDTO updateDTO){
 
+        User user = getLoggedUser();
+        if(!encoder.matches(updateDTO.password(), user.getPassword()))
+            throw new IncorrectPasswordException();
+
+        if(updateDTO.email()!= null)
+            user.setEmail(updateDTO.email());
+
+        if(updateDTO.newPassword() != null)
+            user.setPassword(encoder.encode(updateDTO.newPassword()));
+
+        if(updateDTO.username()!= null)
+            user.setUsername(updateDTO.username());
+
+        userRepository.save(user);
+    }
     public UserDetailsDTO getUserDetailsDTO(){
         User user = getLoggedUser();
 
         return new UserDetailsDTO(user.getUsername(), user.getEmail(), user.isEmailVerified(),
         user.isDeletedAccount(), user.getCreated(),user.getLastTimeUpdated());
+    }
+
+    public void deleteUser(){
+        User user = getLoggedUser();
+        userRepository.delete(user);
     }
 
     /**Returns jwt token if login credentials are correct or throws exception if not
