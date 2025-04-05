@@ -10,5 +10,7 @@ import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 @Repository
 public interface GroupRepository extends JpaRepository<Group,UUID> {
    Group findByInviteToken(String groupToken);
+
+
     
 }

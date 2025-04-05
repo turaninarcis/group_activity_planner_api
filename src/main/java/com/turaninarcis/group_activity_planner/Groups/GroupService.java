@@ -1,5 +1,6 @@
 package com.turaninarcis.group_activity_planner.Groups;
 
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -10,7 +11,9 @@ import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupDetailsDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMember;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberDetailsDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupRoleEnum;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
@@ -84,16 +87,40 @@ public class GroupService {
     private GroupMember getGroupMember(User user, Group group){
         GroupMember member = groupMembersRepository.findByUserAndGroup(user, group);
         if(member == null)
-            throw new ResourceNotFoundException("Group member");
+            throw new PermissionException("You are not a member of the group!");
         return member;
     }
 
+    public GroupDetailsDTO getGroupDetails(String groupId){
+        Group group = getGroup(groupId);
+
+        isLoggedUserGroupMember(group);
+        
+        Set<GroupMemberDetailsDTO> groupMembersDetails = groupMembersRepository.findGroupMembersDetails(group.getId());
+        GroupDetailsDTO detailsDTO = new GroupDetailsDTO(group.getName(),group.getDescription(), group.getCreated(), group.getLastUpdate(), groupMembersDetails);
+        return detailsDTO;
+    }
+    public void deleteGroup(String groupId){
+        Group group = getGroup(groupId);
+        isLoggedUserGroupAdmin(group);
+
+        groupRepository.delete(group);
+    }
     private GroupMember isLoggedUserGroupAdmin(Group group){
         User user = userService.getLoggedUser();
         GroupMember member = getGroupMember(user, group);
 
         if(!member.getRole().isAdmin())
             throw new PermissionException();
+        
+        return member;
+    }
+    private GroupMember isLoggedUserGroupMember(Group group){
+        User user = userService.getLoggedUser();
+        GroupMember member = getGroupMember(user, group);
+
+        if(member==null)
+            throw new PermissionException("You are not a member of this group! ");
         
         return member;
     }

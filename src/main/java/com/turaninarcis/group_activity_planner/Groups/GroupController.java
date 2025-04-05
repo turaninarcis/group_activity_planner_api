@@ -14,10 +14,14 @@ import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @RestController
@@ -26,6 +30,11 @@ public class GroupController {
     @Autowired
     GroupService groupService;
 
+    @GetMapping("/{groupId}")
+    public ResponseEntity<?> getMethodName(@PathVariable String groupId) {
+        return ResponseEntity.ok().body(groupService.getGroupDetails(groupId));
+    }
+    
 
     @PostMapping("")
     public ResponseEntity<String> createGroup(@Valid @RequestBody GroupCreateDTO groupCreateDTO, BindingResult result) {
@@ -55,4 +64,9 @@ public class GroupController {
         groupService.updateGroupMember(groupUpdateDTO, groupId);
         return ResponseEntity.ok().body("Group member role updated successfully");
     }  
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity<String> deleteGroup(@PathVariable String groupId){
+        groupService.deleteGroup(groupId);
+        return ResponseEntity.ok().body("Group successfully deleted");
+    }
 }
