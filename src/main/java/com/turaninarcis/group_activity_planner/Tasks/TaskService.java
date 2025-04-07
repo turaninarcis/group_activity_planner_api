@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Activities.ActivityService;
 import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
@@ -18,8 +19,6 @@ import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignment;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignmnentDetailsDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskDetailsDTO;
-import com.turaninarcis.group_activity_planner.Users.UserService;
-import com.turaninarcis.group_activity_planner.Users.Models.User;
 
 @Service
 public class TaskService {
@@ -29,11 +28,10 @@ public class TaskService {
     private TaskAssignmentRepository taskAssignmentRepository;
     @Autowired
     private ActivityService activityService;
-    @Autowired
-    private UserService userService;
 
-    public void createTask(TaskCreateDTO taskCreateDTO){
-        Activity activity = activityService.getActivityById(taskCreateDTO.activityId());
+
+    public void createTask(TaskCreateDTO taskCreateDTO, String activityId){
+        Activity activity = activityService.getActivityById(activityId);
    
         activityService.isUserModerator(activity);
         
@@ -71,15 +69,17 @@ public class TaskService {
     }
 
     private TaskAssignmnentDetailsDTO getTaskAssignmentDetailsDTO(TaskAssignment taskAssignment){
-        return new TaskAssignmnentDetailsDTO(taskAssignment.getId() ,taskAssignment.getUser().getUsername(), taskAssignment.isCompleted());
+        return new TaskAssignmnentDetailsDTO(taskAssignment.getId() ,taskAssignment.getUser().getUser().getUsername() ,taskAssignment.isCompleted());
     }
 
 
-    public void createTaskAssignment(TaskAssigmnentCreateDTO taskAssigmnentCreateDTO){
-        User user = userService.getLoggedUser();
+    public void createTaskAssignment(TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, String activityId){
+        Activity activitty = activityService.getActivityById(activityId);
+        ActivityMember member = activityService.isUserMember(activitty);
+
         Task task = findTaskById(taskAssigmnentCreateDTO.taskId());
 
-        TaskAssignment taskAssignment = new TaskAssignment(user, task);
+        TaskAssignment taskAssignment = new TaskAssignment(member, task);
         taskAssignmentRepository.save(taskAssignment);
     }
 }

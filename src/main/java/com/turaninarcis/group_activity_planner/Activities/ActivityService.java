@@ -11,8 +11,10 @@ import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityDetailsDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDeleteDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDetailsDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberRoleEnum;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityUpdateDTO;
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
@@ -69,6 +71,13 @@ public class ActivityService {
 
         return activityMember;
     }
+    public ActivityMember isUserAdministrator(Activity activity){
+        ActivityMember activityMember = isUserMember(activity);
+        if(activityMember.getRole().isAdmin() == false)
+            throw new PermissionException();
+        return activityMember;
+    }
+
     public ActivityMember isUserMember(Activity activity){
         User user = userService.getLoggedUser();
         ActivityMember activityMember = activityMemberRepository.findByActivityAndUser(activity, user);
@@ -78,7 +87,12 @@ public class ActivityService {
 
         return activityMember;
     }
-
+    public ActivityMember getMemberById(UUID id){
+        ActivityMember member = activityMemberRepository.findById(id).orElse(null);
+        if(member == null)
+            throw new ResourceNotFoundException("Member");
+        return member;
+    }
 
     public ActivityDetailsDTO getActivityDetails(String activityId){
 
@@ -107,7 +121,7 @@ public class ActivityService {
     public void updateActivity(ActivityUpdateDTO updateDTO, String activityId){
         Activity activity = getActivityById(activityId);
 
-        isUserModerator(activity);
+        isUserAdministrator(activity);
 
         if(updateDTO.name() != null) activity.setName(updateDTO.name());
         if(updateDTO.description() != null) activity.setDescription(updateDTO.description());
@@ -121,7 +135,7 @@ public class ActivityService {
     public void deleteActivity(String activityId){
         Activity activity = getActivityById(activityId);
 
-        isUserModerator(activity);
+        isUserAdministrator(activity);
 
         activityRepository.delete(activity);
     }
@@ -137,5 +151,44 @@ public class ActivityService {
         
         ActivityMember newMember = new ActivityMember(user, activity, ActivityMemberRoleEnum.PARTICIPANT);
         activityMemberRepository.save(newMember);
+    }
+
+    public void changeMemberRole(ActivityMemberUpdateDTO activityMemberUpdateDTO, String activityId){
+        Activity activity = getActivityById(activityId);
+        isUserAdministrator(activity);
+
+        if(activityMemberUpdateDTO.role() == ActivityMemberRoleEnum.CREATOR)
+            throw new PermissionException("You cannot assign a new creator!");
+
+        ActivityMember member = getMemberById(activityMemberUpdateDTO.id());
+        member.setRole(activityMemberUpdateDTO.role());
+        
+        activityMemberRepository.save(member);
+    }
+
+    public void changeMemberConfirmation(String activityId){
+        Activity activity = getActivityById(activityId);
+        ActivityMember member = isUserMember(activity);
+
+        member.setConfirmed(!member.isConfirmed());
+
+        activityMemberRepository.save(member);
+    }
+    
+    public void kickMember(String activityId, ActivityMemberDeleteDTO activityMemberDeleteDTO){
+        Activity activity = getActivityById(activityId);
+        ActivityMember member = getMemberById(activityMemberDeleteDTO.id());
+
+        if(member.getRole() == ActivityMemberRoleEnum.CREATOR) throw new PermissionException("You cannot kick the creator of this activity!");
+
+        isUserAdministrator(activity);
+
+        activityMemberRepository.delete(member);
+    }
+    public void leaveActivity(String activityId){
+        Activity activity = getActivityById(activityId);
+        ActivityMember member = isUserMember(activity);
+
+        activityMemberRepository.delete(member);
     }
 }

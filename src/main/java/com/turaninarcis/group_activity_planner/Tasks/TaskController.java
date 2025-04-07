@@ -12,12 +12,13 @@ import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
 
-@RequestMapping("/activities/tasks")
+@RequestMapping("/activities/{activityId}/tasks")
 @RestController
 public class TaskController {
 
@@ -27,19 +28,19 @@ public class TaskController {
 
 
     @PostMapping("")  
-    public ResponseEntity<String> createTask(@Valid @RequestBody TaskCreateDTO taskCreateDTO, BindingResult result){
+    public ResponseEntity<String> createTask(@Valid @RequestBody TaskCreateDTO taskCreateDTO, @PathVariable String activityId, BindingResult result){
         if(result.hasErrors())
             throw new ValidationException(result);
 
-        taskService.createTask(taskCreateDTO);
+        taskService.createTask(taskCreateDTO, activityId);
         return ResponseEntity.ok().body("Task created successfully");
     }
     @PostMapping("/assignment")
-    public ResponseEntity<String> createTaskAssignment(@Valid @RequestBody TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, BindingResult result){
+    public ResponseEntity<String> createTaskAssignment(@Valid @RequestBody TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, @PathVariable String activityId ,  BindingResult result){
         if(result.hasErrors())
             throw new ValidationException(result);
 
-        taskService.createTaskAssignment(taskAssigmnentCreateDTO);
+        taskService.createTaskAssignment(taskAssigmnentCreateDTO, activityId);
         return ResponseEntity.ok().body("Task assignment created successfully");
     }
 }

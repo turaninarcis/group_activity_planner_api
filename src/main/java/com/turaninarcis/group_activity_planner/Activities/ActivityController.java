@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDeleteDTO;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityUpdateDTO;
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 
@@ -60,5 +62,39 @@ public class ActivityController {
 
         activityService.joinActivity(activityJoinToken);
         return ResponseEntity.ok().body("Joined the activity successfully");
+    }
+
+    @PatchMapping("/{activityId}/members")
+    public ResponseEntity<String> updateActivityMemberRole(@PathVariable String activityId, @Valid @RequestBody ActivityMemberUpdateDTO updateDTO, BindingResult result) {
+        if(result.hasErrors())
+            throw new ValidationException(result);
+        activityService.changeMemberRole(updateDTO, activityId);
+
+        return ResponseEntity.ok().body("Activity member role updated successfully");
+    }
+
+    @PatchMapping("/{activityId}/confirmation")
+    public ResponseEntity<String> updateActivityMemberConfirmation(@PathVariable String activityId) {
+
+        activityService.changeMemberConfirmation(activityId);
+
+        return ResponseEntity.ok().body("Activity confirmation updated successfully");
+    }
+
+    @DeleteMapping("/{activityId}/members/kick")
+    public ResponseEntity<String> kickActivityMember(@PathVariable String activityId, @Valid @RequestBody ActivityMemberDeleteDTO deleteDTO, BindingResult result) {
+        if(result.hasErrors())
+            throw new ValidationException(result);
+        activityService.kickMember(activityId, deleteDTO);
+
+        return ResponseEntity.ok().body("Activity kicked successfully");
+    }
+
+    @DeleteMapping("/{activityId}/members/leave")
+    public ResponseEntity<String> leaveActivity(@PathVariable String activityId) {
+
+        activityService.leaveActivity(activityId);
+
+        return ResponseEntity.ok().body("Activity leaved successfully");
     }
 }

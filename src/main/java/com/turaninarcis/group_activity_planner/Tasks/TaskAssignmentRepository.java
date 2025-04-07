@@ -9,5 +9,5 @@ import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignment;
 
 @Repository
 public interface TaskAssignmentRepository extends JpaRepository<TaskAssignment, UUID> {
-
+    
 }

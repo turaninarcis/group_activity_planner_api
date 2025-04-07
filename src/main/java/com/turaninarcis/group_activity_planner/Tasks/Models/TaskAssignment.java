@@ -2,7 +2,7 @@ package com.turaninarcis.group_activity_planner.Tasks.Models;
 
 import java.util.UUID;
 
-import com.turaninarcis.group_activity_planner.Users.Models.User;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +28,7 @@ public class TaskAssignment {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private ActivityMember user;
 
 
     @ManyToOne
@@ -37,7 +37,7 @@ public class TaskAssignment {
 
     private boolean completed = false;
 
-    public TaskAssignment(User user, Task task){
+    public TaskAssignment(ActivityMember user, Task task){
         this.user = user;
         this.task = task;
     }

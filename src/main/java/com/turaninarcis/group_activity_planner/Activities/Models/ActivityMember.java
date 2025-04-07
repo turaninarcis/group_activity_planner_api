@@ -1,10 +1,12 @@
 package com.turaninarcis.group_activity_planner.Activities.Models;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignment;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 
 import jakarta.persistence.CascadeType;
@@ -16,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,11 +39,13 @@ public class ActivityMember {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
-
+    @ManyToOne
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
     
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<TaskAssignment> assignments;
+
     @Enumerated(EnumType.STRING)
     private ActivityMemberRoleEnum role;
 
