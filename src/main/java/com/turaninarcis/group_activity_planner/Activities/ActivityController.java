@@ -4,12 +4,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
-import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDeleteDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityUpdateDTO;
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 
 import jakarta.validation.Valid;
+
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -82,10 +83,9 @@ public class ActivityController {
     }
 
     @DeleteMapping("/{activityId}/members/kick")
-    public ResponseEntity<String> kickActivityMember(@PathVariable String activityId, @Valid @RequestBody ActivityMemberDeleteDTO deleteDTO, BindingResult result) {
-        if(result.hasErrors())
-            throw new ValidationException(result);
-        activityService.kickMember(activityId, deleteDTO);
+    public ResponseEntity<String> kickActivityMember(@PathVariable String activityId, @RequestBody UUID memberId) {
+
+        activityService.kickMember(activityId, memberId);
 
         return ResponseEntity.ok().body("Activity kicked successfully");
     }

@@ -11,7 +11,6 @@ import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityDetailsDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
-import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDeleteDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDetailsDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberRoleEnum;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberUpdateDTO;
@@ -174,10 +173,12 @@ public class ActivityService {
 
         activityMemberRepository.save(member);
     }
-    
-    public void kickMember(String activityId, ActivityMemberDeleteDTO activityMemberDeleteDTO){
+
+    public void kickMember(String activityId, UUID memberId){
+        if(memberId==null) throw new ResourceNotFoundException("Activity member");
+
         Activity activity = getActivityById(activityId);
-        ActivityMember member = getMemberById(activityMemberDeleteDTO.id());
+        ActivityMember member = getMemberById(memberId);
 
         if(member.getRole() == ActivityMemberRoleEnum.CREATOR) throw new PermissionException("You cannot kick the creator of this activity!");
 

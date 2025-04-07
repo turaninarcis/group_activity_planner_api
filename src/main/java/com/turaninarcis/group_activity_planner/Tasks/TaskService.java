@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.turaninarcis.group_activity_planner.Activities.ActivityService;
 import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
+import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
@@ -19,6 +20,7 @@ import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignment;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignmnentDetailsDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskDetailsDTO;
+import com.turaninarcis.group_activity_planner.Tasks.Models.TaskUpdateDTO;
 
 @Service
 public class TaskService {
@@ -81,5 +83,50 @@ public class TaskService {
 
         TaskAssignment taskAssignment = new TaskAssignment(member, task);
         taskAssignmentRepository.save(taskAssignment);
+    }
+
+    public void updateTask(TaskUpdateDTO updateDTO, String activityId, UUID taskId){
+        Task task = findTaskById(taskId);
+
+        Activity activity = activityService.getActivityById(activityId);
+        activityService.isUserAdministrator(activity);
+
+        if(updateDTO.name()!= null) task.setName(updateDTO.name());
+        if(updateDTO.description()!= null) task.setDescription(updateDTO.description());
+
+        taskRepository.save(task);
+    }
+
+    public void deleteTask(String activityId, UUID taskId){
+        if(taskId == null) throw new ResourceNotFoundException("Task");
+
+        Activity activity = activityService.getActivityById(activityId);
+        activityService.isUserAdministrator(activity);
+
+        Task task = findTaskById(taskId);
+        taskRepository.delete(task);
+    }
+
+    public TaskAssignment isUserTaskAssignmentOwner(String activityId, UUID taskId){
+        Activity activity = activityService.getActivityById(activityId);
+        ActivityMember member = activityService.isUserMember(activity);
+        Task task = findTaskById(taskId);
+
+        TaskAssignment taskAssignment = taskAssignmentRepository.findByUserAndTask(member, task);
+        if(taskAssignment==null)
+            throw new PermissionException("You do not have the permission to change other people assignments!");
+        return taskAssignment;
+    }
+
+    public void updateTaskAssignment(String activityId,UUID taskId){
+        TaskAssignment taskAssignment = isUserTaskAssignmentOwner(activityId, taskId);
+
+        taskAssignment.setCompleted(!taskAssignment.isCompleted());
+        taskAssignmentRepository.save(taskAssignment);
+    }
+    public void deleteTaskAssignment(String activityId, UUID taskId){
+        TaskAssignment taskAssignment = isUserTaskAssignmentOwner(activityId, taskId);
+
+        taskAssignmentRepository.delete(taskAssignment);
     }
 }
