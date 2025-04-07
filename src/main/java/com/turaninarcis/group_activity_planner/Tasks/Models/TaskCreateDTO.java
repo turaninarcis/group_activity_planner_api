@@ -1,8 +1,5 @@
 package com.turaninarcis.group_activity_planner.Tasks.Models;
 
-
-import java.util.UUID;
-
 import org.hibernate.validator.constraints.Length;
 
 import jakarta.validation.constraints.NotBlank;
@@ -17,5 +14,5 @@ public record TaskCreateDTO(
     String description,
 
     @NotNull(message = "Activity id is needed")
-    UUID activityId
+    String activityId
 ) {}

@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,6 +45,9 @@ public class Activity {
 
     @OneToMany(mappedBy = "activity", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<ActivityMember> members;
+
+    @OneToMany(mappedBy = "activity", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private Set<Task> tasks;
 
     @NotBlank
     @NotNull

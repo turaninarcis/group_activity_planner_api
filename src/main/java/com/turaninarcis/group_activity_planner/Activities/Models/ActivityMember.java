@@ -1,6 +1,9 @@
 package com.turaninarcis.group_activity_planner.Activities.Models;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.turaninarcis.group_activity_planner.Users.Models.User;
 
@@ -34,12 +37,15 @@ public class ActivityMember {
     private User user;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    
+
     @JoinColumn(name = "activity_id", nullable = false)
     private Activity activity;
     
     @Enumerated(EnumType.STRING)
     private ActivityMemberRoleEnum role;
+
+    @CreationTimestamp
+    private LocalDateTime joinDate;
 
     private boolean confirmed = false;
 
