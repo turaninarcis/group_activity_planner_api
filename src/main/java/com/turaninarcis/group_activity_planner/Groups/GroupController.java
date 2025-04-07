@@ -45,7 +45,7 @@ public class GroupController {
     }
     @PostMapping("/invite/{inviteToken}")
     public ResponseEntity<String> joinGroup(@PathVariable String inviteToken) {
-        groupService.createGroupMember(inviteToken);
+        groupService.joinGroup(inviteToken);
         return ResponseEntity.ok().body("User joined group successfully");
     }
     @PatchMapping("/{groupId}")

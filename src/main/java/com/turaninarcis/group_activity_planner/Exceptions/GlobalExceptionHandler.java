@@ -26,6 +26,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String,String>> handleUserExists(UserAlreadyExistsException exception){
         return createResponseEntity(HttpStatus.CONFLICT, exception);
     }
+    @ExceptionHandler(UserAlreadyJoinedException.class)
+    public ResponseEntity<Map<String,String>> handleUserAlreadyJoined(UserAlreadyJoinedException exception){
+        return createResponseEntity(HttpStatus.CONFLICT, exception);
+    }
 
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<Map<String,String>> handleValidationException(ValidationException exception){

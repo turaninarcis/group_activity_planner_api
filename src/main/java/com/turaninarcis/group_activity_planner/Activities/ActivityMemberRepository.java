@@ -17,7 +17,7 @@ public interface ActivityMemberRepository extends JpaRepository<ActivityMember, 
     @Query("SELECT u from ActivityMember u WHERE u.activity = ?1 AND u.user = ?2")
     public ActivityMember findByActivityAndUser(Activity activity, User user);
 
-    @Query("SELECT new com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDetailsDTO(u.username, am.role, am.confirmed, am.joinDate)" +
+    @Query("SELECT new com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDetailsDTO(am.id,u.username, am.role, am.confirmed, am.joinDate)" +
            "FROM ActivityMember am JOIN am.user u WHERE am.activity = ?1")
     public Set<ActivityMemberDetailsDTO> getAllActivityMembersDetails(Activity activity);
 }

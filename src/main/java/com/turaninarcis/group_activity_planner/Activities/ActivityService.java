@@ -12,8 +12,11 @@ import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateD
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityDetailsDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberDetailsDTO;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberRoleEnum;
+import com.turaninarcis.group_activity_planner.Activities.Models.ActivityUpdateDTO;
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
+import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyJoinedException;
 import com.turaninarcis.group_activity_planner.Tasks.TaskService;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.UserService;
@@ -57,31 +60,37 @@ public class ActivityService {
             throw new ResourceNotFoundException(Activity.class.getSimpleName());
         return activity;
     }
-    public boolean isMemberModerator(User user, Activity activity){
-        ActivityMember activityMember = activityMemberRepository.findByActivityAndUser(activity, user);
-        if(activityMember == null)
-            return false;
 
-        return activityMember.getRole().isModerator();
+
+    public ActivityMember isUserModerator(Activity activity){
+        ActivityMember activityMember = isUserMember(activity);
+        if(activityMember.getRole().isModerator() == false)
+            throw new PermissionException();
+
+        return activityMember;
     }
-    public boolean isUserMember(Activity activity){
+    public ActivityMember isUserMember(Activity activity){
         User user = userService.getLoggedUser();
         ActivityMember activityMember = activityMemberRepository.findByActivityAndUser(activity, user);
+
         if(activityMember == null)
-            return false;
-        return true;
+            throw new PermissionException("You are not a member of the activity!");
+
+        return activityMember;
     }
+
+
     public ActivityDetailsDTO getActivityDetails(String activityId){
 
         
         Activity activity = getActivityById(activityId);
 
-        if(!isUserMember(activity))
-            throw new PermissionException("You are not a member of the activity!");
+        isUserMember(activity);
 
         Set<ActivityMemberDetailsDTO> members = activityMemberRepository.getAllActivityMembersDetails(activity);
         Set<TaskDetailsDTO> tasks = taskService.getAllTasksDetails(activity);
         ActivityDetailsDTO detailsDTO = ActivityDetailsDTO.builder()
+                                        .id(activity.getId())
                                         .name(activity.getName())
                                         .description(activity.getDescription())
                                         .inviteToken(activity.getInviteToken())
@@ -93,5 +102,40 @@ public class ActivityService {
                                         .tasks(tasks)
                                         .build();
         return detailsDTO;
+    }
+
+    public void updateActivity(ActivityUpdateDTO updateDTO, String activityId){
+        Activity activity = getActivityById(activityId);
+
+        isUserModerator(activity);
+
+        if(updateDTO.name() != null) activity.setName(updateDTO.name());
+        if(updateDTO.description() != null) activity.setDescription(updateDTO.description());
+        if(updateDTO.startDate() != null) activity.setStartDate(updateDTO.startDate());
+        if(updateDTO.endDate() != null) activity.setEndDate(updateDTO.endDate());
+        if(updateDTO.changeInviteToken() == true) activity.setInviteToken(UUID.randomUUID().toString());
+
+        activityRepository.save(activity);
+    }
+
+    public void deleteActivity(String activityId){
+        Activity activity = getActivityById(activityId);
+
+        isUserModerator(activity);
+
+        activityRepository.delete(activity);
+    }
+    public void joinActivity(String joinActivityToken){
+        Activity activity = activityRepository.findByInviteToken(joinActivityToken);
+        if(activity == null)
+            throw new ResourceNotFoundException(Activity.class.getSimpleName());
+        
+        User user = userService.getLoggedUser();
+        ActivityMember activityMember = activityMemberRepository.findByActivityAndUser(activity, user);
+        if(activityMember != null)
+            throw new UserAlreadyJoinedException();
+        
+        ActivityMember newMember = new ActivityMember(user, activity, ActivityMemberRoleEnum.PARTICIPANT);
+        activityMemberRepository.save(newMember);
     }
 }

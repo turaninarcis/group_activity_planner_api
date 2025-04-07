@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
+import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyJoinedException;
 import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupDetailsDTO;
@@ -43,11 +44,14 @@ public class GroupService {
 
         groupMembersRepository.save(creator);
     }
-    public void createGroupMember(String groupToken){
+    public void joinGroup(String groupToken){
         Group group = groupRepository.findByInviteToken(groupToken);
         if(group == null)
             throw new ResourceNotFoundException(Group.class.getSimpleName());
+            
         User user = userService.getLoggedUser();
+        GroupMember member = groupMembersRepository.findByUserAndGroup(user, group);
+        if(member != null) throw new UserAlreadyJoinedException();
 
         GroupMember groupMember = new GroupMember(user, group);
         groupMembersRepository.save(groupMember);

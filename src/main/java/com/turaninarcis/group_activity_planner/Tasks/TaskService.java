@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Activities.ActivityService;
 import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
-import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
@@ -35,11 +34,8 @@ public class TaskService {
 
     public void createTask(TaskCreateDTO taskCreateDTO){
         Activity activity = activityService.getActivityById(taskCreateDTO.activityId());
-
-        User user = userService.getLoggedUser();
    
-        if(!activityService.isMemberModerator(user, activity))
-            throw new PermissionException();
+        activityService.isUserModerator(activity);
         
         Task task = new Task(taskCreateDTO.name(),taskCreateDTO.description(),activity);
         taskRepository.save(task);
@@ -61,7 +57,7 @@ public class TaskService {
     }
 
     public TaskDetailsDTO getTaskDetails(Task task){
-        TaskDetailsDTO taskDetailsDTO = new TaskDetailsDTO(task.getName(), task.getDescription(), getAllTaskAssignmentDetails(task));
+        TaskDetailsDTO taskDetailsDTO = new TaskDetailsDTO(task.getId(), task.getName(), task.getDescription(), getAllTaskAssignmentDetails(task));
         return taskDetailsDTO;
     }
 
@@ -75,7 +71,7 @@ public class TaskService {
     }
 
     private TaskAssignmnentDetailsDTO getTaskAssignmentDetailsDTO(TaskAssignment taskAssignment){
-        return new TaskAssignmnentDetailsDTO(taskAssignment.getUser().getUsername(), taskAssignment.isCompleted());
+        return new TaskAssignmnentDetailsDTO(taskAssignment.getId() ,taskAssignment.getUser().getUsername(), taskAssignment.isCompleted());
     }
 
 
