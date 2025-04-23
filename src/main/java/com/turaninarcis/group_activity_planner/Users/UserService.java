@@ -77,7 +77,7 @@ public class UserService implements UserDetailsService {
     
 
 
-    public void register(UserCreateDTO userCreateDTO) {
+    public String register(UserCreateDTO userCreateDTO) {
         if(userRepository.findByEmail(userCreateDTO.email()) != null)
             throw new UserAlreadyExistsException("Email is already in use");
 
@@ -88,6 +88,8 @@ public class UserService implements UserDetailsService {
         String password = encoder.encode(userCreateDTO.password());
         User user = new User(userCreateDTO.username(), password, userCreateDTO.email());
         userRepository.save(user);
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(userCreateDTO.username(), userCreateDTO.password()));
+        return jwtService.generateToken(userCreateDTO.username());
     }
   
 

@@ -28,6 +28,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(customizer->customizer.disable())
+            .cors(Customizer.withDefaults())
             .authorizeHttpRequests(request->request.requestMatchers("/users/register","/users/login","/error").permitAll().anyRequest().authenticated())
             .httpBasic(Customizer.withDefaults())
             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

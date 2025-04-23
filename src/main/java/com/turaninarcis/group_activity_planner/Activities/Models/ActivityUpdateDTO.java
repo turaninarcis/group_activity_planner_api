@@ -12,7 +12,6 @@ public record ActivityUpdateDTO(
     String name,
     @Length(max = 254, message = "The activity description should not exceed 254 characters")
     String description,
-    boolean changeInviteToken,
     
     @FutureOrPresent
     LocalDateTime startDate,

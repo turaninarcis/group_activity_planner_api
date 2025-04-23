@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     }
     private ResponseEntity<Map<String,String>> createResponseEntity(HttpStatus status, RuntimeException e){
         Map<String,String> error = new HashMap<>();
-        error.put("error", e.getMessage());
+        error.put("message", e.getMessage());
 
         return ResponseEntity.status(status).body(error);
     }

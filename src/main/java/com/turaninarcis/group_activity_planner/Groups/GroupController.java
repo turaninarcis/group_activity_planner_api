@@ -1,6 +1,8 @@
 package com.turaninarcis.group_activity_planner.Groups;
 
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -11,6 +13,7 @@ import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
+import com.turaninarcis.group_activity_planner.utility.CreateResponseEntity;
 
 import jakarta.validation.Valid;
 
@@ -36,47 +39,47 @@ public class GroupController {
     
 
     @PostMapping("")
-    public ResponseEntity<String> createGroup(@Valid @RequestBody GroupCreateDTO groupCreateDTO, BindingResult result) {
+    public ResponseEntity<Map<String,String>> createGroup(@Valid @RequestBody GroupCreateDTO groupCreateDTO, BindingResult result) {
         if(result.hasErrors())
             throw new ValidationException(result);
 
         groupService.createGroup(groupCreateDTO);
-        return ResponseEntity.ok("Group created successfully");
+        return CreateResponseEntity.okEntity("Group created successfully");
     }
     @PostMapping("/invite/{inviteToken}")
-    public ResponseEntity<String> joinGroup(@PathVariable String inviteToken) {
+    public ResponseEntity<Map<String,String>> joinGroup(@PathVariable String inviteToken) {
         groupService.joinGroup(inviteToken);
-        return ResponseEntity.ok().body("User joined group successfully");
+        return CreateResponseEntity.okEntity("User joined group successfully");
     }
     @PatchMapping("/{groupId}")
-    public ResponseEntity<String> updateGroup(@PathVariable String groupId, @Valid @RequestBody GroupUpdateDTO groupUpdateDTO, BindingResult result){
+    public ResponseEntity<Map<String,String>> updateGroup(@PathVariable String groupId, @Valid @RequestBody GroupUpdateDTO groupUpdateDTO, BindingResult result){
         if(result.hasErrors())
             throw new ValidationException(result);
         groupService.updateGroup(groupUpdateDTO, groupId);
-        return ResponseEntity.ok().body("Group updated successfully");
+        return CreateResponseEntity.okEntity("Group updated successfully");
     }  
     @PatchMapping("/{groupId}/members")
-    public ResponseEntity<String> updateGroupMember(@PathVariable String groupId, @Valid @RequestBody GroupMemberUpdateDTO groupUpdateDTO, BindingResult result){
+    public ResponseEntity<Map<String,String>> updateGroupMember(@PathVariable String groupId, @Valid @RequestBody GroupMemberUpdateDTO groupUpdateDTO, BindingResult result){
         if(result.hasErrors())
             throw new ValidationException(result);
 
         groupService.updateGroupMember(groupUpdateDTO, groupId);
-        return ResponseEntity.ok().body("Group member role updated successfully");
+        return CreateResponseEntity.okEntity("Group member role updated successfully");
     }  
 
     @DeleteMapping("/{groupId}/members/leave")
-    public ResponseEntity<String> leaveGroup(@PathVariable String groupId){
+    public ResponseEntity<Map<String,String>> leaveGroup(@PathVariable String groupId){
         groupService.leaveGroup(groupId);
-        return ResponseEntity.ok().body("Leaved the group successfully");
+        return CreateResponseEntity.okEntity("Left the group successfully");
     }  
     @DeleteMapping("/{groupId}/members/{username}/kick")
-    public ResponseEntity<String> kickMember(@PathVariable String groupId, @PathVariable String username){
+    public ResponseEntity<Map<String,String>> kickMember(@PathVariable String groupId, @PathVariable String username){
         groupService.kickMember(groupId, username);
-        return ResponseEntity.ok().body("User kicked from the group successfully");
+        return CreateResponseEntity.okEntity("User kicked from the group successfully");
     }  
     @DeleteMapping("/{groupId}")
-    public ResponseEntity<String> deleteGroup(@PathVariable String groupId){
+    public ResponseEntity<Map<String,String>> deleteGroup(@PathVariable String groupId){
         groupService.deleteGroup(groupId);
-        return ResponseEntity.ok().body("Group successfully deleted");
+        return CreateResponseEntity.okEntity("Group deleted successfully");
     }
 }

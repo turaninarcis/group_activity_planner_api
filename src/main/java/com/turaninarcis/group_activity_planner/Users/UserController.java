@@ -1,5 +1,8 @@
 package com.turaninarcis.group_activity_planner.Users;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -16,11 +19,10 @@ import com.turaninarcis.group_activity_planner.Users.Models.UserLoginDTO;
 import com.turaninarcis.group_activity_planner.Users.Models.UserUpdateDTO;
 
 import jakarta.validation.Valid;
-
+import com.turaninarcis.group_activity_planner.utility.CreateResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 
 @RequestMapping("/users")
 @RestController
@@ -29,30 +31,30 @@ public class UserController {
     UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserCreateDTO createDTO, BindingResult result) {
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateDTO createDTO, BindingResult result) {
         if(result.hasErrors())
             throw new ValidationException(result);
 
-        userService.register(createDTO);
-        return ResponseEntity.ok("User created successfully");
+        String jwtToken = userService.register(createDTO);
+        return ResponseEntity.ok(Map.of("token", jwtToken));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginDTO loginDTO) {
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO loginDTO) {
         String jwtToken = userService.getJwtToken(loginDTO);
 
         if(jwtToken==null)
             throw new AuthentificationFailedException();
-        return ResponseEntity.ok(jwtToken);
+            return ResponseEntity.ok(Map.of("token", jwtToken));
     }
 
     @PatchMapping("")
-    public ResponseEntity<String> changeAccountDetails(@Valid @RequestBody UserUpdateDTO updateDTO, BindingResult bindingResult){
+    public ResponseEntity<Map<String,String>> changeAccountDetails(@Valid @RequestBody UserUpdateDTO updateDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
         
         userService.updateUser(updateDTO);
-        return ResponseEntity.ok().body("Updated successfully");
+        return CreateResponseEntity.okEntity("Updated successfully");
     }
     @GetMapping("")
     public ResponseEntity<?> getUserInfo() {
@@ -60,9 +62,9 @@ public class UserController {
         return ResponseEntity.ok(userDetailsDTO);
     }
     @DeleteMapping("")
-    public ResponseEntity<String> deleteLoggedUser(){
+    public ResponseEntity<Map<String,String>> deleteLoggedUser(){
         userService.deleteUser();
-        return ResponseEntity.ok().body("User deleted successfully");
+        return CreateResponseEntity.okEntity("User deleted successfully");
     }
     
 

@@ -19,8 +19,8 @@ public class JWTService {
     private final SecretKey secretKey;
 
         //How to transform miliseconds into util time => 1000(miliseconds for a second) * 60 (seconds in a minute) * minutes * hours
-        private final long EXPIRATION_TIME = 1000*60*15; // 15 min
-        private final long REFRESH_EXPIRATION_TIME = 1000*60*60; // one hour
+        private final long EXPIRATION_TIME = 1000*60*60; // one hour
+        private final long REFRESH_EXPIRATION_TIME = 1000*60*60*2; // two hours
 
         public JWTService(){
             this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
