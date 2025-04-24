@@ -1,6 +1,5 @@
 package com.turaninarcis.group_activity_planner.Users;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;

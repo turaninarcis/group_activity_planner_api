@@ -1,6 +1,7 @@
 package com.turaninarcis.group_activity_planner.Groups;
 
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,9 +34,16 @@ public class GroupController {
     GroupService groupService;
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<?> getMethodName(@PathVariable String groupId) {
+    public ResponseEntity<?> getGroupDetails(@PathVariable String groupId) {
         return ResponseEntity.ok().body(groupService.getGroupDetails(groupId));
     }
+    @GetMapping("")
+    public ResponseEntity<?> getJoinedGroups() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("joinedGroups", groupService.getJoinedGroups());
+        return ResponseEntity.ok().body(response);
+    }
+    
     
 
     @PostMapping("")
@@ -58,6 +66,15 @@ public class GroupController {
         groupService.updateGroup(groupUpdateDTO, groupId);
         return CreateResponseEntity.okEntity("Group updated successfully");
     }  
+
+    @PatchMapping("/{groupId}/newtoken")
+    public ResponseEntity<Map<String,String>> updateGroupInviteToken(@PathVariable String groupId){
+
+        String newInviteToken = groupService.updateGroupInviteToken(groupId);
+        Map<String,String> response = new HashMap<>();
+        response.put("newToken",newInviteToken);
+        return ResponseEntity.ok().body(response);
+    }  
     @PatchMapping("/{groupId}/members")
     public ResponseEntity<Map<String,String>> updateGroupMember(@PathVariable String groupId, @Valid @RequestBody GroupMemberUpdateDTO groupUpdateDTO, BindingResult result){
         if(result.hasErrors())
@@ -72,9 +89,9 @@ public class GroupController {
         groupService.leaveGroup(groupId);
         return CreateResponseEntity.okEntity("Left the group successfully");
     }  
-    @DeleteMapping("/{groupId}/members/{username}/kick")
-    public ResponseEntity<Map<String,String>> kickMember(@PathVariable String groupId, @PathVariable String username){
-        groupService.kickMember(groupId, username);
+    @DeleteMapping("/{groupId}/members/{memberId}/kick")
+    public ResponseEntity<Map<String,String>> kickMember(@PathVariable String groupId, @PathVariable String memberId){
+        groupService.kickMember(groupId, memberId);
         return CreateResponseEntity.okEntity("User kicked from the group successfully");
     }  
     @DeleteMapping("/{groupId}")

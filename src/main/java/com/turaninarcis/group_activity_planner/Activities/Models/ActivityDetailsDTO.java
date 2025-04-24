@@ -1,6 +1,7 @@
 package com.turaninarcis.group_activity_planner.Activities.Models;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public record ActivityDetailsDTO(
     LocalDateTime startDate,
     LocalDateTime endDate,
     Set<ActivityMemberDetailsDTO> members,
-    Set<TaskDetailsDTO> tasks
+    List<TaskDetailsDTO> tasks
 ) {
     
 }

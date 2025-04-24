@@ -1,5 +1,6 @@
 package com.turaninarcis.group_activity_planner.Tasks;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
-import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskUpdateDTO;
 import com.turaninarcis.group_activity_planner.utility.CreateResponseEntity;
@@ -38,17 +38,11 @@ public class TaskController {
     public ResponseEntity<Map<String,String>> createTask(@Valid @RequestBody TaskCreateDTO taskCreateDTO, @PathVariable String activityId, BindingResult result){
         if(result.hasErrors())
             throw new ValidationException(result);
-
-        taskService.createTask(taskCreateDTO, activityId);
-        return CreateResponseEntity.okEntity("Task created successfully");
-    }
-    @PostMapping("/assignment")
-    public ResponseEntity<Map<String,String>> createTaskAssignment(@Valid @RequestBody TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, @PathVariable String activityId ,  BindingResult result){
-        if(result.hasErrors())
-            throw new ValidationException(result);
-
-        taskService.createTaskAssignment(taskAssigmnentCreateDTO, activityId);
-        return CreateResponseEntity.okEntity("Task assignment created successfully");
+        UUID id = taskService.createTask(taskCreateDTO, activityId);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Task created successfully");
+        response.put("id", id.toString() );
+        return ResponseEntity.ok().body(response);
     }
 
     @PatchMapping("/{taskId}")
@@ -60,6 +54,20 @@ public class TaskController {
         return CreateResponseEntity.okEntity("Task updated successfully");
     }
 
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Map<String,String>> deleteTask(@PathVariable String  activityId, @PathVariable UUID taskId){
+
+        taskService.deleteTask(activityId, taskId);
+        return CreateResponseEntity.okEntity("Task deleted successfully");
+    }
+
+    @PostMapping("/{taskId}/assignment")
+    public ResponseEntity<Map<String,String>> createTaskAssignment(@PathVariable UUID taskId, @PathVariable String activityId){
+
+        taskService.createTaskAssignment(taskId, activityId);
+        return CreateResponseEntity.okEntity("Task assignment created successfully");
+    }
+
     @PatchMapping("/{taskId}/assignment")
     public ResponseEntity<Map<String,String>> updateTaskAssignment(@PathVariable String  activityId, @PathVariable UUID taskId){
 
@@ -67,12 +75,6 @@ public class TaskController {
         return CreateResponseEntity.okEntity("Task assignment updated successfully");
     }
 
-    @DeleteMapping("/{taskId}")
-    public ResponseEntity<Map<String,String>> deleteTask(@PathVariable String  activityId, @PathVariable UUID taskId){
-
-        taskService.deleteTask(activityId, taskId);
-        return CreateResponseEntity.okEntity("Task deleted successfully");
-    }
 
     @DeleteMapping("/{taskId}/assignment")
     public ResponseEntity<Map<String,String>> deleteTaskAssignment(@PathVariable String  activityId, @PathVariable UUID taskId){

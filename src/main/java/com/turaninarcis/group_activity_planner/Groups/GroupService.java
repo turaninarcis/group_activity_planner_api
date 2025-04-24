@@ -1,5 +1,7 @@
 package com.turaninarcis.group_activity_planner.Groups;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ import com.turaninarcis.group_activity_planner.Groups.Models.GroupMember;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberDetailsDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupRoleEnum;
+import com.turaninarcis.group_activity_planner.Groups.Models.GroupSummaryDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupUpdateDTO;
 import com.turaninarcis.group_activity_planner.Users.UserService;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
@@ -64,26 +67,42 @@ public class GroupService {
 
         if(groupUpdateDTO.description() != null) group.setDescription(groupUpdateDTO.description());
         if(groupUpdateDTO.name() != null) group.setName(groupUpdateDTO.name());
-        if(groupUpdateDTO.newToken() == true) group.setInviteToken(UUID.randomUUID().toString());
 
         groupRepository.save(group);
     }
+
+    public String updateGroupInviteToken(String groupId){
+        UUID id = UUID.fromString(groupId);
+        Group group=groupRepository.findById(id).orElse(null);
+        isLoggedUserGroupAdmin(group);
+
+        group.setInviteToken(UUID.randomUUID().toString());
+
+        groupRepository.save(group);
+
+        return group.getInviteToken();
+    }
+
     public void updateGroupMember(GroupMemberUpdateDTO groupMemberUpdateDTO, String groupId){
         if(groupMemberUpdateDTO.role() == GroupRoleEnum.CREATOR) throw new PermissionException("You can't assign a new creator!");
         Group group = getGroup(groupId);
 
         isLoggedUserGroupAdmin(group);
 
-        User user = userService.findUserByUsername(groupMemberUpdateDTO.username());
-
-        GroupMember member = getGroupMember(user, group);
+        GroupMember member = groupMembersRepository.findById(UUID.fromString(groupMemberUpdateDTO.memberId())).orElse(null);
 
         member.setRole(groupMemberUpdateDTO.role());
 
         groupMembersRepository.save(member);
     }
     private Group getGroup(String groupId){
-        UUID id = UUID.fromString(groupId);
+        UUID id;
+        try{
+            id = UUID.fromString(groupId);
+        }catch(RuntimeException e){
+            throw new ResourceNotFoundException("Group");
+        }
+
         Group group=groupRepository.findById(id).orElse(null);
         if(group == null) throw new ResourceNotFoundException(Group.class.getSimpleName());
         return group;
@@ -100,10 +119,9 @@ public class GroupService {
         GroupMember member = isLoggedUserGroupMember(group);
         groupMembersRepository.delete(member);
     }
-    public void kickMember(String groupId, String username){
+    public void kickMember(String groupId, String memberId){
         Group group = getGroup(groupId);
-        User user = userService.findUserByUsername(username);
-        GroupMember groupMember = getGroupMember(user, group);
+        GroupMember groupMember = groupMembersRepository.findById(UUID.fromString(memberId)).orElse(null);
         if(groupMember == null) throw new ResourceNotFoundException("Group member");
         isLoggedUserGroupAdmin(group);
 
@@ -116,7 +134,7 @@ public class GroupService {
         isLoggedUserGroupMember(group);
 
         Set<GroupMemberDetailsDTO> groupMembersDetails = groupMembersRepository.findGroupMembersDetails(group.getId());
-        GroupDetailsDTO detailsDTO = new GroupDetailsDTO(group.getName(),group.getDescription(), group.getCreated(), group.getLastUpdate(), groupMembersDetails);
+        GroupDetailsDTO detailsDTO = new GroupDetailsDTO(group.getId().toString(),group.getName(),group.getDescription(), group.getInviteToken(),group.getCreated(), group.getLastUpdate(), groupMembersDetails);
         return detailsDTO;
     }
     public void deleteGroup(String groupId){
@@ -142,5 +160,15 @@ public class GroupService {
             throw new PermissionException("You are not a member of this group! ");
         
         return member;
+    }
+
+    public List<GroupSummaryDTO> getJoinedGroups(){
+        User user = userService.getLoggedUser();
+        List<GroupSummaryDTO> groupSummaryList = new ArrayList<GroupSummaryDTO>();
+        List<Group> groups= groupRepository.findAllByUserId(user.getId());
+        for (Group group : groups) {
+            groupSummaryList.add(new GroupSummaryDTO(group.getId(), group.getName()));
+        }
+        return groupSummaryList;
     }
 }

@@ -2,7 +2,10 @@ package com.turaninarcis.group_activity_planner.Tasks;
 
 
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,7 +18,6 @@ import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMember;
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
-import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssigmnentCreateDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignment;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskAssignmnentDetailsDTO;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskCreateDTO;
@@ -32,13 +34,15 @@ public class TaskService {
     private ActivityService activityService;
 
 
-    public void createTask(TaskCreateDTO taskCreateDTO, String activityId){
+    public UUID createTask(TaskCreateDTO taskCreateDTO, String activityId){
         Activity activity = activityService.getActivityById(activityId);
    
         activityService.isUserModerator(activity);
         
         Task task = new Task(taskCreateDTO.name(),taskCreateDTO.description(),activity);
         taskRepository.save(task);
+
+        return task.getId();
     }
     public Task findTaskById(UUID id){
         Task task = taskRepository.findById(id).orElse(null);
@@ -47,10 +51,15 @@ public class TaskService {
         return task;
     }
 
-    public Set<TaskDetailsDTO> getAllTasksDetails(Activity activity){
+    public List<TaskDetailsDTO> getAllTasksDetails(Activity activity){
         Set<Task> tasks = activity.getTasks();
-        Set<TaskDetailsDTO> taskDetails = new HashSet<>();
-        for (Task task : tasks) {
+        List<Task> sortedTasks = new ArrayList<>(tasks);
+
+        sortedTasks.sort(Comparator.comparing(Task::getName));
+
+        List<TaskDetailsDTO> taskDetails = new ArrayList<TaskDetailsDTO>();
+
+        for (Task task : sortedTasks) {
             taskDetails.add(getTaskDetails(task));
         }
         return taskDetails;
@@ -75,14 +84,15 @@ public class TaskService {
     }
 
 
-    public void createTaskAssignment(TaskAssigmnentCreateDTO taskAssigmnentCreateDTO, String activityId){
+    public void createTaskAssignment(UUID taskId, String activityId){
         Activity activitty = activityService.getActivityById(activityId);
         ActivityMember member = activityService.isUserMember(activitty);
 
-        Task task = findTaskById(taskAssigmnentCreateDTO.taskId());
+        Task task = findTaskById(taskId);
 
         TaskAssignment taskAssignment = new TaskAssignment(member, task);
         taskAssignmentRepository.save(taskAssignment);
+
     }
 
     public void updateTask(TaskUpdateDTO updateDTO, String activityId, UUID taskId){

@@ -58,7 +58,12 @@ public class ActivityService {
     }
 
     public Activity getActivityById(String activityId){
-        UUID id = UUID.fromString(activityId);
+        UUID id;
+        try{
+            id = UUID.fromString(activityId);
+        }catch(RuntimeException e){
+            throw new ResourceNotFoundException("Activity");
+        }
         Activity activity = activityRepository.findById(id).orElse(null);
         if(activity == null)
             throw new ResourceNotFoundException(Activity.class.getSimpleName());
@@ -126,7 +131,7 @@ public class ActivityService {
         isUserMember(activity);
 
         Set<ActivityMemberDetailsDTO> members = activityMemberRepository.getAllActivityMembersDetails(activity);
-        Set<TaskDetailsDTO> tasks = taskService.getAllTasksDetails(activity);
+        List<TaskDetailsDTO> tasks = taskService.getAllTasksDetails(activity);
         ActivityDetailsDTO detailsDTO = ActivityDetailsDTO.builder()
                                         .id(activity.getId())
                                         .name(activity.getName())
