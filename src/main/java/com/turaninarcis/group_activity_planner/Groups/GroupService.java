@@ -162,6 +162,18 @@ public class GroupService {
         return member;
     }
 
+    public GroupMember getGroupMemberById(String id){
+        return groupMembersRepository.findById(UUID.fromString(id)).orElse(null);
+    }
+
+    public GroupMember getGroupMemberByUsernameAndGroupId(String username, String groupId){
+        return groupMembersRepository.findByUserUsernameAndGroupId(username, UUID.fromString(groupId));
+    }
+
+    public Group getGroupById(String id){
+        return groupRepository.findById(UUID.fromString(id)).orElse(null);
+    }
+
     public List<GroupSummaryDTO> getJoinedGroups(){
         User user = userService.getLoggedUser();
         List<GroupSummaryDTO> groupSummaryList = new ArrayList<GroupSummaryDTO>();

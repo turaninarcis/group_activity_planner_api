@@ -16,4 +16,6 @@ public interface GroupRepository extends JpaRepository<Group,UUID> {
 
    @Query("SELECT gm.group FROM GroupMember gm WHERE gm.user.id = :userId")
     List<Group> findAllByUserId(@Param("userId") UUID userId);
+
+    
 }

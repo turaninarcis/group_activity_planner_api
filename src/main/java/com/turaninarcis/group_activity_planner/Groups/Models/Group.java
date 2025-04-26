@@ -2,11 +2,14 @@ package com.turaninarcis.group_activity_planner.Groups.Models;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.turaninarcis.group_activity_planner.Chat.ChatMessage;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -36,7 +39,10 @@ public class Group {
     private String name;
     private String description;
     private String inviteToken;
-
+    
+    @OneToMany(mappedBy = "group")
+    private List<ChatMessage> messages;
+    
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<GroupMember> groupMembers = new HashSet<>();
 

@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.turaninarcis.group_activity_planner.Chat.ChatService;
 import com.turaninarcis.group_activity_planner.Exceptions.ValidationException;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberUpdateDTO;
@@ -32,6 +33,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class GroupController {
     @Autowired
     GroupService groupService;
+    @Autowired
+    ChatService chatService;
 
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroupDetails(@PathVariable String groupId) {
@@ -98,5 +101,14 @@ public class GroupController {
     public ResponseEntity<Map<String,String>> deleteGroup(@PathVariable String groupId){
         groupService.deleteGroup(groupId);
         return CreateResponseEntity.okEntity("Group deleted successfully");
+    }
+
+
+    @GetMapping("/{groupId}/messages")
+    public ResponseEntity<Map<String,Object>> getMessagesForGroup(@PathVariable String groupId) {
+        Map<String,Object> reponse = new HashMap<>();
+        reponse.put("chatMessages",chatService.getChatMessages(groupId));
+
+        return ResponseEntity.ok().body(reponse);
     }
 }
