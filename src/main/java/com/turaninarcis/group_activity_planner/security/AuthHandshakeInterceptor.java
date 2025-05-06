@@ -27,7 +27,9 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         if(jwtService.isTokenInvalid(token))return false;
 
         String username = jwtService.getUserNameFromToken(token);
+        String userId = jwtService.getUserIdFromToken(token);
         attributes.put("username", username);
+        attributes.put("userId", userId);
         return true;
     }
 

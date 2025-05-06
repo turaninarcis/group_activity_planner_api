@@ -77,7 +77,10 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-
+    public static boolean Equals(User a, User b){
+        if(a.id == b.id) return true;
+        return false;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;

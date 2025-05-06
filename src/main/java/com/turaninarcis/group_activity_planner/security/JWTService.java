@@ -1,6 +1,7 @@
 package com.turaninarcis.group_activity_planner.security;
 
 import java.util.Date;
+import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
@@ -20,27 +21,28 @@ public class JWTService {
 
         //How to transform miliseconds into util time => 1000(miliseconds for a second) * 60 (seconds in a minute) * minutes * hours
         private final long EXPIRATION_TIME = 1000*60*60; // one hour
-        private final long REFRESH_EXPIRATION_TIME = 1000*60*60*2; // two hours
+        // private final long REFRESH_EXPIRATION_TIME = 1000*60*60*2; // two hours
 
         public JWTService(){
             this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
         }
 
-        public String generateToken(String userName){
+        public String generateToken(String username, UUID userId){
             return Jwts.builder()
-                .subject(userName)
+                .subject(userId.toString())
+                .claim("username", username)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(secretKey)
                 .compact();
         }
 
-        public String generateRefreshToken(String userName){
-            return Jwts.builder()
-                .subject(userName)
-                .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-                .signWith(secretKey)
-                .compact();
-        }
+        // public String generateRefreshToken(String userName){
+        //     return Jwts.builder()
+        //         .subject(userName)
+        //         .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
+        //         .signWith(secretKey)
+        //         .compact();
+        // }
 
         private Claims extractClaims(String token) throws MalformedJwtException{
             return Jwts.parser()
@@ -48,12 +50,6 @@ public class JWTService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        }
-
-
-        public String getUsernameFromAuthHeader(String authHeader){
-            String token = getToken(authHeader);
-            return getUserNameFromToken(token);
         }
 
         public String getToken(String authHeader){
@@ -68,7 +64,7 @@ public class JWTService {
          * **/
         public String getUserNameFromToken(String token){
             try{
-                return extractClaims(token).getSubject();
+                return extractClaims(token).get("username", String.class);
             }
             catch (JwtException e)
             {
@@ -76,6 +72,13 @@ public class JWTService {
             }
         }
 
+        public String getUserIdFromToken(String token){
+            try{
+                return extractClaims(token).getSubject();
+            }catch(JwtException e){
+                return null;
+            }
+        }
 
         /** This method checks for expiration date and returns true if the token is past current date*
          * 

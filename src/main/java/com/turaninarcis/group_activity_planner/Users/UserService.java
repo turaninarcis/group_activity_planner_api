@@ -1,5 +1,8 @@
 package com.turaninarcis.group_activity_planner.Users;
 
+import java.util.UUID;
+
+import org.apache.tomcat.util.digester.SystemPropertySource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,9 +39,14 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        return userRepository.findById(UUID.fromString(id)).orElse(null);
     }
+
+    public User loadUserById(String id) throws UsernameNotFoundException {
+        return userRepository.findById(UUID.fromString(id)).orElse(null);
+    }
+
     public User findUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username);
     }
@@ -47,27 +55,15 @@ public class UserService implements UserDetailsService {
      * Returns the current user from the SecurityContextHolder and returns it
      * @return current logged in user
      */
-    public User getLoggedUser(){
-        String username = getLoggedUsername();
-        User user = userRepository.findByUsername(username);
-        if(user == null)
-            throw new ResourceNotFoundException(User.class.getSimpleName());
-        return user;
+    public User getLoggedUser() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     /**
      * Gets the current users username from the SecurityContextHolder and returns it
      * @return current logged in username
      */
-    public String getLoggedUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        } else {
-            return principal.toString();
-        }
-    }
+
     public Boolean isUserAdmin(){
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains(RoleEnum.ROLE_ADMIN);
     }
@@ -89,24 +85,32 @@ public class UserService implements UserDetailsService {
         User user = new User(userCreateDTO.username(), password, userCreateDTO.email());
         userRepository.save(user);
         authManager.authenticate(new UsernamePasswordAuthenticationToken(userCreateDTO.username(), userCreateDTO.password()));
-        return jwtService.generateToken(userCreateDTO.username());
+        return jwtService.generateToken(userCreateDTO.username(), user.getId());
     }
   
 
     public void updateUser(UserUpdateDTO updateDTO){
 
         User user = getLoggedUser();
-        if(!encoder.matches(updateDTO.password(), user.getPassword()))
-            throw new IncorrectPasswordException();
+        User updateDetailsUser = userRepository.findByEmailOrUsername(updateDTO.email(), updateDTO.username());
 
-        if(updateDTO.email()!= null)
+        if(!encoder.matches(updateDTO.password(), user.getPassword()))
+        throw new IncorrectPasswordException();
+        
+        if(updateDTO.email()!= null){
+            if(!User.Equals(updateDetailsUser, user)&&updateDetailsUser.getEmail()==updateDTO.email())
+                throw new UserAlreadyExistsException("Someone else already uses this email");
             user.setEmail(updateDTO.email());
+        }
 
         if(updateDTO.newPassword() != null)
             user.setPassword(encoder.encode(updateDTO.newPassword()));
 
-        if(updateDTO.username()!= null)
+        if(updateDTO.username()!= null){
+            if(!User.Equals(updateDetailsUser, user)&&updateDetailsUser.getUsername()==updateDTO.username())
+                throw new UserAlreadyExistsException("Someone else already uses this username");
             user.setUsername(updateDTO.username());
+        }
 
         userRepository.save(user);
     }
@@ -134,10 +138,9 @@ public class UserService implements UserDetailsService {
         if(user == null)
             throw new AuthentificationFailedException();
 
-
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), userLoginDTO.password()));
-        return jwtService.generateToken(user.getUsername());
-
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), userLoginDTO.password()));
+        
+        return jwtService.generateToken(user.getUsername(), user.getId());
     }
 
 }

@@ -29,6 +29,12 @@ public class UserController {
     @Autowired
     UserService userService;
 
+    @GetMapping("")
+    public ResponseEntity<?> getUserInfo() {
+        UserDetailsDTO userDetailsDTO = userService.getUserDetailsDTO();
+        return ResponseEntity.ok(userDetailsDTO);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserCreateDTO createDTO, BindingResult result) {
         if(result.hasErrors())
@@ -55,11 +61,7 @@ public class UserController {
         userService.updateUser(updateDTO);
         return CreateResponseEntity.okEntity("Updated successfully");
     }
-    @GetMapping("")
-    public ResponseEntity<?> getUserInfo() {
-        UserDetailsDTO userDetailsDTO = userService.getUserDetailsDTO();
-        return ResponseEntity.ok(userDetailsDTO);
-    }
+
     @DeleteMapping("")
     public ResponseEntity<Map<String,String>> deleteLoggedUser(){
         userService.deleteUser();
