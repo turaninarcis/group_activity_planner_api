@@ -44,6 +44,7 @@ public class GroupMember {
     @CreationTimestamp
     private LocalDateTime joinDate;
 
+    private boolean deleted = false;
 
     public GroupMember(User user, Group group){
         this.user=user;

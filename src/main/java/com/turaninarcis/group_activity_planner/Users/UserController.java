@@ -54,12 +54,12 @@ public class UserController {
     }
 
     @PatchMapping("")
-    public ResponseEntity<Map<String,String>> changeAccountDetails(@Valid @RequestBody UserUpdateDTO updateDTO, BindingResult bindingResult){
+    public ResponseEntity<?> changeAccountDetails(@Valid @RequestBody UserUpdateDTO updateDTO, BindingResult bindingResult){
         if(bindingResult.hasErrors())
             throw new ValidationException(bindingResult);
         
-        userService.updateUser(updateDTO);
-        return CreateResponseEntity.okEntity("Updated successfully");
+        UserDetailsDTO updatedUser = userService.updateUser(updateDTO);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("")

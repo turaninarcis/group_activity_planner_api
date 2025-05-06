@@ -14,7 +14,7 @@ import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 public interface GroupRepository extends JpaRepository<Group,UUID> {
    Group findByInviteToken(String groupToken);
 
-   @Query("SELECT gm.group FROM GroupMember gm WHERE gm.user.id = :userId")
+   @Query("SELECT gm.group FROM GroupMember gm WHERE gm.user.id = :userId AND gm.deleted = false")
     List<Group> findAllByUserId(@Param("userId") UUID userId);
 
     

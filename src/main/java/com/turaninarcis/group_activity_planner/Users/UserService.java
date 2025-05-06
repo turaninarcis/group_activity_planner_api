@@ -2,7 +2,6 @@ package com.turaninarcis.group_activity_planner.Users;
 
 import java.util.UUID;
 
-import org.apache.tomcat.util.digester.SystemPropertySource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.turaninarcis.group_activity_planner.Exceptions.AuthentificationFailedException;
 import com.turaninarcis.group_activity_planner.Exceptions.IncorrectPasswordException;
-import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyExistsException;
 import com.turaninarcis.group_activity_planner.Users.Models.RoleEnum;
 import com.turaninarcis.group_activity_planner.Users.Models.User;
@@ -89,16 +87,14 @@ public class UserService implements UserDetailsService {
     }
   
 
-    public void updateUser(UserUpdateDTO updateDTO){
-
+    public UserDetailsDTO updateUser(UserUpdateDTO updateDTO){
         User user = getLoggedUser();
-        User updateDetailsUser = userRepository.findByEmailOrUsername(updateDTO.email(), updateDTO.username());
 
         if(!encoder.matches(updateDTO.password(), user.getPassword()))
         throw new IncorrectPasswordException();
         
         if(updateDTO.email()!= null){
-            if(!User.Equals(updateDetailsUser, user)&&updateDetailsUser.getEmail()==updateDTO.email())
+            if(userRepository.existsByEmailAndIdNot(updateDTO.email(), user.getId()))
                 throw new UserAlreadyExistsException("Someone else already uses this email");
             user.setEmail(updateDTO.email());
         }
@@ -107,16 +103,22 @@ public class UserService implements UserDetailsService {
             user.setPassword(encoder.encode(updateDTO.newPassword()));
 
         if(updateDTO.username()!= null){
-            if(!User.Equals(updateDetailsUser, user)&&updateDetailsUser.getUsername()==updateDTO.username())
+            if(userRepository.existsByUsernameAndIdNot(updateDTO.username(), user.getId()))
                 throw new UserAlreadyExistsException("Someone else already uses this username");
             user.setUsername(updateDTO.username());
         }
 
         userRepository.save(user);
+
+        return CreateUserDetailsDTO(user);
     }
     public UserDetailsDTO getUserDetailsDTO(){
         User user = getLoggedUser();
 
+        return CreateUserDetailsDTO(user);
+    }
+
+    private UserDetailsDTO CreateUserDetailsDTO(User user){
         return new UserDetailsDTO(user.getUsername(), user.getEmail(), user.isEmailVerified(),
         user.isDeletedAccount(), user.getCreated(),user.getLastTimeUpdated());
     }

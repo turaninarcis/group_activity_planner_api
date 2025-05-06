@@ -54,7 +54,13 @@ public class GroupService {
             
         User user = userService.getLoggedUser();
         GroupMember member = groupMembersRepository.findByUserAndGroup(user, group);
-        if(member != null) throw new UserAlreadyJoinedException();
+        if(member != null){
+            if(member.isDeleted()==true){
+                member.setDeleted(false);
+                groupMembersRepository.save(member);
+                return;
+            }else throw new UserAlreadyJoinedException();
+        }
 
         GroupMember groupMember = new GroupMember(user, group);
         groupMembersRepository.save(groupMember);
@@ -117,7 +123,11 @@ public class GroupService {
     public void leaveGroup(String groupId){
         Group group = getGroup(groupId);
         GroupMember member = isLoggedUserGroupMember(group);
-        groupMembersRepository.delete(member);
+        if(!member.isDeleted()){
+            member.setDeleted(true);
+            groupMembersRepository.save(member);
+        }
+            
     }
     public void kickMember(String groupId, String memberId){
         Group group = getGroup(groupId);
@@ -125,7 +135,8 @@ public class GroupService {
         if(groupMember == null) throw new ResourceNotFoundException("Group member");
         isLoggedUserGroupAdmin(group);
 
-        groupMembersRepository.delete(groupMember);
+        groupMember.setDeleted(true);
+        groupMembersRepository.save(groupMember);
     }
 
     public GroupDetailsDTO getGroupDetails(String groupId){
@@ -144,8 +155,7 @@ public class GroupService {
         groupRepository.delete(group);
     }
     private GroupMember isLoggedUserGroupAdmin(Group group){
-        User user = userService.getLoggedUser();
-        GroupMember member = getGroupMember(user, group);
+        GroupMember member = isLoggedUserGroupMember(group);
 
         if(!member.getRole().isAdmin())
             throw new PermissionException();
@@ -156,15 +166,12 @@ public class GroupService {
         User user = userService.getLoggedUser();
         GroupMember member = getGroupMember(user, group);
 
-        if(member==null)
+        if(member==null  || member.isDeleted()==true)
             throw new PermissionException("You are not a member of this group! ");
-        
+
         return member;
     }
 
-    public GroupMember getGroupMemberById(String id){
-        return groupMembersRepository.findById(UUID.fromString(id)).orElse(null);
-    }
 
     public GroupMember getGroupMemberByUsernameAndGroupId(String username, String groupId){
         return groupMembersRepository.findByUserUsernameAndGroupId(username, UUID.fromString(groupId));

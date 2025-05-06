@@ -26,7 +26,7 @@ public class ChatController {
     public void sendMessage(@Payload MessageDTO messageDTO) {
         // Fetch the sender user from the database using the user ID from JWT or session
         GroupMember member = groupService.getGroupMemberByUsernameAndGroupId(messageDTO.senderName(), messageDTO.groupId());
-
+        System.out.println(messageDTO.senderName());
         // Fetch the group entity from the database using the group ID
         Group group = groupService.getGroupById(messageDTO.groupId());
 

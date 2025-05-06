@@ -16,7 +16,7 @@ import com.turaninarcis.group_activity_planner.Users.Models.User;
 public interface GroupMembersRepository extends JpaRepository<GroupMember,UUID>{
     public GroupMember findByUserAndGroup(User user, Group group);
 
-    @Query("SELECT new com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberDetailsDTO(gm.id, u.username , gm.role, gm.joinDate) FROM GroupMember gm JOIN gm.user u WHERE gm.group.id = ?1")
+    @Query("SELECT new com.turaninarcis.group_activity_planner.Groups.Models.GroupMemberDetailsDTO(gm.id, u.username , gm.role, gm.joinDate) FROM GroupMember gm JOIN gm.user u WHERE gm.group.id = ?1 AND gm.deleted = false")
     Set<GroupMemberDetailsDTO>findGroupMembersDetails(UUID groupId);
 
     GroupMember findByUserUsernameAndGroupId(String username, UUID groupId);
