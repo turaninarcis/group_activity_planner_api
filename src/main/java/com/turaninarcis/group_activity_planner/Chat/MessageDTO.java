@@ -1,10 +1,20 @@
 package com.turaninarcis.group_activity_planner.Chat;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record MessageDTO(
-    String senderName,
-    String groupId,
-    String content,
-    String sendDateTime
-) {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class MessageDTO {
+    String senderName;
+    String groupId;
+    String message;
+    String image;
+    String sendDateTime;
 } 

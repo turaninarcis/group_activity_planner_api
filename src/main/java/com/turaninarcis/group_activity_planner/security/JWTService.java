@@ -1,5 +1,7 @@
 package com.turaninarcis.group_activity_planner.security;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -19,10 +21,6 @@ public class JWTService {
     private static final String SECRET_KEY = "12dfjklsdfjlbkgfdfgkldflgdfhljdfgnjldf12344h3iutjdrjlhgrfkdjdhkgbdgsfsfdsd";
     private final SecretKey secretKey;
 
-        //How to transform miliseconds into util time => 1000(miliseconds for a second) * 60 (seconds in a minute) * minutes * hours
-        private final long EXPIRATION_TIME = 1000*60*60; // one hour
-        // private final long REFRESH_EXPIRATION_TIME = 1000*60*60*2; // two hours
-
         public JWTService(){
             this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY));
         }
@@ -31,18 +29,11 @@ public class JWTService {
             return Jwts.builder()
                 .subject(userId.toString())
                 .claim("username", username)
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .expiration(Date.from(Instant.now().plus(Duration.ofHours(3))))
                 .signWith(secretKey)
                 .compact();
         }
 
-        // public String generateRefreshToken(String userName){
-        //     return Jwts.builder()
-        //         .subject(userName)
-        //         .expiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
-        //         .signWith(secretKey)
-        //         .compact();
-        // }
 
         private Claims extractClaims(String token) throws MalformedJwtException{
             return Jwts.parser()

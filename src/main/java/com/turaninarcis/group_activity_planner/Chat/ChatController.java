@@ -25,21 +25,31 @@ public class ChatController {
     @MessageMapping("/sendMessage")
     public void sendMessage(@Payload MessageDTO messageDTO) {
         // Fetch the sender user from the database using the user ID from JWT or session
-        GroupMember member = groupService.getGroupMemberByUsernameAndGroupId(messageDTO.senderName(), messageDTO.groupId());
-        System.out.println(messageDTO.senderName());
+        GroupMember member = groupService.getGroupMemberByUsernameAndGroupId(messageDTO.getSenderName(), messageDTO.getGroupId());
+        System.out.println("Sender name" + messageDTO.getSenderName());
         // Fetch the group entity from the database using the group ID
-        Group group = groupService.getGroupById(messageDTO.groupId());
+        Group group = groupService.getGroupById(messageDTO.getGroupId());
 
         // Create a new message entity
-        ChatMessage message = new ChatMessage(member,group,messageDTO.content());
+        ChatMessage message;
+        if(messageDTO.getImage()==null)
+             message = new ChatMessage(member,group,messageDTO.getMessage());
+        else message = new ChatMessage(member,group,messageDTO.getMessage(), messageDTO.getImage());
 
+        System.out.println("Image" + messageDTO.getImage());
 
         // Save the message in the database
         chatMessageRepository.save(message);
-        MessageDTO newDto = new MessageDTO(message.getSender().getUser().getUsername(), message.getGroup().getId().toString(), message.getContent(), message.getTimestamp().toString());
+        MessageDTO newDTO = MessageDTO.builder()
+                                .groupId(message.getGroup().getId().toString())
+                                .message(message.getMessage())
+                                .image(message.getImage())
+                                .senderName(message.getSender().getUser().getUsername())
+                                .sendDateTime(message.getTimestamp().toString())
+                                .build();
         // Send the message to the specific group chat via WebSocket
 
-        messagingTemplate.convertAndSend("/topic/group/" + messageDTO.groupId(), newDto);
+        messagingTemplate.convertAndSend("/topic/group/" + messageDTO.getGroupId(), newDTO);
     }
 
 

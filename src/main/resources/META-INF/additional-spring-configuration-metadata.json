@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "chatapp.upload.dir",
+  "type": "java.lang.String",
+  "description": "The location for file uploads"
+}]}

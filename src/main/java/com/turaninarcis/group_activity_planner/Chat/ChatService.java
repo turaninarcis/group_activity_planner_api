@@ -14,7 +14,13 @@ public class ChatService {
     public List<MessageDTO> getChatMessages(String groupId){
         List<ChatMessage> messages = chatMessageRepository.findByGroupIdOrderByTimestamp(UUID.fromString(groupId));
         return messages.stream()
-                .map(message -> new MessageDTO(message.getSender().getUser().getUsername(), message.getGroup().getId().toString(), message.getContent(), message.getTimestamp().toString()))
+                .map(message -> MessageDTO.builder()
+                    .groupId(message.getGroup().getId().toString())
+                    .message(message.getMessage())
+                    .image(message.getImage())
+                    .senderName(message.getSender().getUser().getUsername())
+                    .sendDateTime(message.getTimestamp().toString())
+                    .build())
                 .collect(Collectors.toList());
     }
 }

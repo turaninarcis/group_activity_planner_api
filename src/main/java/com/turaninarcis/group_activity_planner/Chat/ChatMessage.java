@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -39,14 +40,23 @@ public class ChatMessage {
     private Group group;
 
     @Column(nullable = false, columnDefinition = "VARCHAR(1000)")
-    private String content;
+    private String message;
     
+    @Column(columnDefinition = "VARCHAR(400)")
+    private String image;
+
     @CreationTimestamp
     private LocalDateTime timestamp;
 
-    public ChatMessage(GroupMember sender, Group group, String content){
+    public ChatMessage(GroupMember sender, Group group, String message, String image){
         this.sender = sender;
-        this.content = content;
+        this.message = message;
+        this.group = group;
+        this.image=image;
+    }
+    public ChatMessage(GroupMember sender, Group group, String message){
+        this.sender = sender;
+        this.message = message;
         this.group = group;
     }
 }

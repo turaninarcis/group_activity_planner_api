@@ -22,7 +22,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
 
         String token = UriComponentsBuilder.fromUri(request.getURI()).build().getQueryParams().getFirst("token");
 
-        System.out.println(token);
+        System.out.println("TOKEN" + token);
 
         if(jwtService.isTokenInvalid(token))return false;
 

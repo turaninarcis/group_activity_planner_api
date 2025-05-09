@@ -29,7 +29,10 @@ public class SecurityConfig {
     public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(customizer->customizer.disable())
             .cors(Customizer.withDefaults())
-            .authorizeHttpRequests(request->request.requestMatchers("/users/register","/users/login","/error").permitAll().requestMatchers("/ws/**").permitAll().anyRequest().authenticated()) 
+            .authorizeHttpRequests(request->request.requestMatchers("/users/register","/users/login","/error").permitAll()
+                                                    .requestMatchers("/ws/**").permitAll()
+                                                    .requestMatchers("/images/**").permitAll()
+                                                    .anyRequest().authenticated()) 
             .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

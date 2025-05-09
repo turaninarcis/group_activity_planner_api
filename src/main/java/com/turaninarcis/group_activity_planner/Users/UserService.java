@@ -82,7 +82,7 @@ public class UserService implements UserDetailsService {
         String password = encoder.encode(userCreateDTO.password());
         User user = new User(userCreateDTO.username(), password, userCreateDTO.email());
         userRepository.save(user);
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(userCreateDTO.username(), userCreateDTO.password()));
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), userCreateDTO.password()));
         return jwtService.generateToken(userCreateDTO.username(), user.getId());
     }
   
