@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.turaninarcis.group_activity_planner.Tasks.Models.Task;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -56,6 +57,8 @@ public class Activity {
     @CreationTimestamp
     private LocalDateTime created;
 
+    private String imagePath;
+
     @UpdateTimestamp
     private LocalDateTime modified;
 
@@ -69,5 +72,14 @@ public class Activity {
         this.inviteToken = inviteToken;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public Activity(String name, String description, String inviteToken, String imagePath, LocalDateTime startDate, LocalDateTime endDate){
+        this.name = name;
+        this.description = description;
+        this.inviteToken = inviteToken;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.imagePath = imagePath;
     }
 }

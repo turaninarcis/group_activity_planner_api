@@ -41,7 +41,7 @@ public class ActivityService {
 
     public void createActivity(ActivityCreateDTO activityCreateDTO) {
         String inviteToken = UUID.randomUUID().toString();
-
+        
         Activity activity = Activity.builder()
                                 .name(activityCreateDTO.name())
                                 .description(activityCreateDTO.description())
@@ -81,13 +81,7 @@ public class ActivityService {
         return joinedActivities;
     }
 
-    public ActivityMember isUserModerator(Activity activity){
-        ActivityMember activityMember = isUserMember(activity);
-        if(activityMember.getRole().isModerator() == false)
-            throw new PermissionException();
 
-        return activityMember;
-    }
     public ActivityMember isUserAdministrator(Activity activity){
         ActivityMember activityMember = isUserMember(activity);
         if(activityMember.getRole().isAdmin() == false)

@@ -37,7 +37,7 @@ public class TaskService {
     public UUID createTask(TaskCreateDTO taskCreateDTO, String activityId){
         Activity activity = activityService.getActivityById(activityId);
    
-        activityService.isUserModerator(activity);
+        activityService.isUserAdministrator(activity);
         
         Task task = new Task(taskCreateDTO.name(),taskCreateDTO.description(),activity);
         taskRepository.save(task);
