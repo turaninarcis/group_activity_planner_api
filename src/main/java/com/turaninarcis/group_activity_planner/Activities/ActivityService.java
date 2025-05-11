@@ -6,8 +6,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.Activity;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
@@ -21,6 +23,7 @@ import com.turaninarcis.group_activity_planner.Activities.Models.ActivityUpdateD
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyJoinedException;
+import com.turaninarcis.group_activity_planner.FileStorage.FileStorageService;
 import com.turaninarcis.group_activity_planner.Tasks.TaskService;
 import com.turaninarcis.group_activity_planner.Tasks.Models.TaskDetailsDTO;
 import com.turaninarcis.group_activity_planner.Users.UserService;
@@ -28,12 +31,18 @@ import com.turaninarcis.group_activity_planner.Users.Models.User;
 
 @Service
 public class ActivityService {
+
+    @Value("${upload.dir}")
+    String uploadDir;
+
     @Autowired
     private ActivityRepository activityRepository;
     @Autowired
     private ActivityMemberRepository activityMemberRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Lazy
     @Autowired
@@ -42,6 +51,8 @@ public class ActivityService {
     public void createActivity(ActivityCreateDTO activityCreateDTO) {
         String inviteToken = UUID.randomUUID().toString();
         
+
+
         Activity activity = Activity.builder()
                                 .name(activityCreateDTO.name())
                                 .description(activityCreateDTO.description())
@@ -76,7 +87,7 @@ public class ActivityService {
         List<Activity> activities = activityRepository.findAllByUserId(user.getId());
         Set<ActivityShortDetailsDTO> joinedActivities = new HashSet<ActivityShortDetailsDTO>();
         for (Activity activity : activities) {
-            joinedActivities.add(new ActivityShortDetailsDTO(activity.getId(), activity.getName(), activity.getStartDate()));
+            joinedActivities.add(new ActivityShortDetailsDTO(activity.getId(), activity.getName(), "thumbnail_" + activity.getImageUrl(), activity.getStartDate()));
         }
         return joinedActivities;
     }
@@ -129,6 +140,7 @@ public class ActivityService {
         ActivityDetailsDTO detailsDTO = ActivityDetailsDTO.builder()
                                         .id(activity.getId())
                                         .name(activity.getName())
+                                        .imageUrl(activity.getImageUrl())
                                         .description(activity.getDescription())
                                         .inviteToken(activity.getInviteToken())
                                         .dateOfCreation(activity.getCreated())
@@ -153,6 +165,19 @@ public class ActivityService {
 
         activityRepository.save(activity);
     }
+
+    public String updateActivityImage(String id, MultipartFile image){
+        Activity activity = getActivityById(id);
+        String fileUrl = null;
+        if(image!=null){
+            removeImageFromActivity(id);
+            fileUrl = fileStorageService.save(image);
+        }
+        activity.setImageUrl(fileUrl);
+        activityRepository.save(activity);
+        return fileUrl;
+    }
+
     public String updateInviteToken(String activityId){
         Activity activity = getActivityById(activityId);
         isUserAdministrator(activity);
@@ -164,9 +189,22 @@ public class ActivityService {
         Activity activity = getActivityById(activityId);
 
         isUserAdministrator(activity);
-
+        removeImageFromActivity(activityId);
         activityRepository.delete(activity);
     }
+
+    public void removeImageFromActivity(String id){
+        Activity activity = getActivityById(id);
+        String imageUrl = activity.getImageUrl();
+        
+        
+        if(imageUrl != null){
+            fileStorageService.deleteImages(imageUrl);
+            activity.setImageUrl(null);
+            activityRepository.save(activity);
+        }
+    }
+
     public void joinActivity(String joinActivityToken){
         Activity activity = activityRepository.findByInviteToken(joinActivityToken);
         if(activity == null)
@@ -220,5 +258,10 @@ public class ActivityService {
         ActivityMember member = isUserMember(activity);
 
         activityMemberRepository.delete(member);
+        if(activity.getMembers().size()==0)
+        {
+            removeImageFromActivity(activityId);
+            activityRepository.delete(activity);
+        }
     }
 }

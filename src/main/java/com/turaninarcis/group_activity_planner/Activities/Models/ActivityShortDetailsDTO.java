@@ -6,6 +6,7 @@ import java.util.UUID;
 public record ActivityShortDetailsDTO(
     UUID id,
     String name,
+    String thumbnailUrl,
     LocalDateTime startDate
 ) {} 
 

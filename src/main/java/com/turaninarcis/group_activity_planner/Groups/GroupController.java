@@ -99,7 +99,7 @@ public class GroupController {
     }  
     @DeleteMapping("/{groupId}")
     public ResponseEntity<Map<String,String>> deleteGroup(@PathVariable String groupId){
-        groupService.deleteGroup(groupId);
+        groupService.deleteGroupByMember(groupId);
         return CreateResponseEntity.okEntity("Group deleted successfully");
     }
 

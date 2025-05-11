@@ -18,7 +18,5 @@ public record ActivityCreateDTO(
     @FutureOrPresent(message = "The activity can't start in the past")
     LocalDateTime startDate,
     @Future(message = "The activity can't end in the past")
-    LocalDateTime endDate,
-
-    String imageUrl
+    LocalDateTime endDate
 ){} 

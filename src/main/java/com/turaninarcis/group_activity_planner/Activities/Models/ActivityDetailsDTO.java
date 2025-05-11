@@ -14,6 +14,7 @@ public record ActivityDetailsDTO(
     String name,
     String description,
     String inviteToken,
+    String imageUrl,
     LocalDateTime dateOfCreation,
     LocalDateTime lastModify,
     LocalDateTime startDate,

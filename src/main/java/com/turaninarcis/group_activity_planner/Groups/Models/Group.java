@@ -40,7 +40,7 @@ public class Group {
     private String description;
     private String inviteToken;
     
-    @OneToMany(mappedBy = "group")
+    @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ChatMessage> messages;
     
     @OneToMany(mappedBy = "group", cascade = CascadeType.REMOVE, orphanRemoval = true)

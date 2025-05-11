@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer{
 
-    @Value("${chatapp.upload.dir}")
+    @Value("${upload.dir}")
     private String uploadDir;
 
     @Override

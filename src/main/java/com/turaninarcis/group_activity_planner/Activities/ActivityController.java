@@ -1,7 +1,9 @@
 package com.turaninarcis.group_activity_planner.Activities;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityCreateDTO;
 import com.turaninarcis.group_activity_planner.Activities.Models.ActivityMemberUpdateDTO;
@@ -26,6 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.turaninarcis.group_activity_planner.utility.CreateResponseEntity;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 
@@ -42,6 +46,17 @@ public class ActivityController {
 
         activityService.createActivity(activityCreateDTO);
         return CreateResponseEntity.createdEntity("Activity created successfully");
+    }
+
+
+    @PutMapping("/{id}/image")
+    public ResponseEntity<Map<String,String>> updateActivityImage(@PathVariable String id, @RequestParam("image") MultipartFile image) {
+        
+        String imageUrl = activityService.updateActivityImage(id, image);
+        Map<String,String> map = new HashMap<>();
+        map.put("imageUrl", imageUrl);
+
+        return ResponseEntity.ok(map);
     }
 
     @GetMapping("")

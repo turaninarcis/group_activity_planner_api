@@ -9,9 +9,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.turaninarcis.group_activity_planner.Chat.ChatMessage;
 import com.turaninarcis.group_activity_planner.Exceptions.PermissionException;
 import com.turaninarcis.group_activity_planner.Exceptions.ResourceNotFoundException;
 import com.turaninarcis.group_activity_planner.Exceptions.UserAlreadyJoinedException;
+import com.turaninarcis.group_activity_planner.FileStorage.FileStorageService;
 import com.turaninarcis.group_activity_planner.Groups.Models.Group;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupCreateDTO;
 import com.turaninarcis.group_activity_planner.Groups.Models.GroupDetailsDTO;
@@ -35,6 +37,10 @@ public class GroupService {
 
     @Autowired 
     private UserService userService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
 
     public void createGroup(GroupCreateDTO groupCreateDTO) {
         String inviteToken = UUID.randomUUID().toString();
@@ -126,6 +132,8 @@ public class GroupService {
         if(!member.isDeleted()){
             member.setDeleted(true);
             groupMembersRepository.save(member);
+            if(groupMembersRepository.findGroupMembersDetails(group.getId()).size()==0)
+                deleteGroup(group);
         }
             
     }
@@ -148,12 +156,21 @@ public class GroupService {
         GroupDetailsDTO detailsDTO = new GroupDetailsDTO(group.getId().toString(),group.getName(),group.getDescription(), group.getInviteToken(),group.getCreated(), group.getLastUpdate(), groupMembersDetails);
         return detailsDTO;
     }
-    public void deleteGroup(String groupId){
+
+    public void deleteGroup(Group group){
+        for (ChatMessage message : group.getMessages()) {
+            if(message.getImage()!=null)
+                fileStorageService.deleteImages(message.getImage());
+        }
+         groupRepository.delete(group);
+    }
+
+    public void deleteGroupByMember(String groupId){
         Group group = getGroup(groupId);
         isLoggedUserGroupAdmin(group);
-
-        groupRepository.delete(group);
+        deleteGroup(group);
     }
+
     private GroupMember isLoggedUserGroupAdmin(Group group){
         GroupMember member = isLoggedUserGroupMember(group);
 

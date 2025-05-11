@@ -31,7 +31,7 @@ public class ChatMessage {
     UUID id;
 
     @ManyToOne
-    @JoinColumn(name="sender_id",nullable = false)
+    @JoinColumn(name="sender_id",nullable = true)
     private GroupMember sender;
 
     @ManyToOne

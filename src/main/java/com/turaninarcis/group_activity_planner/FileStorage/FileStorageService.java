@@ -45,4 +45,16 @@ public class FileStorageService {
             throw new RuntimeException("Failed to store image", e);
         }
     }
+
+    public void deleteImages(String imageUrl){
+        Path uploadPath = Paths.get("").toAbsolutePath().resolve(uploadDir);
+        Path imagePath = uploadPath.resolve(imageUrl);
+        Path thumbnailPath = uploadPath.resolve("thumbnail_"+imageUrl);
+        try{
+            Files.deleteIfExists(imagePath);
+            Files.deleteIfExists(thumbnailPath);
+        }catch(IOException e){
+            throw new RuntimeException("Error while deleting file");
+        }
+    }
 }
